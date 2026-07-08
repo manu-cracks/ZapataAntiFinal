@@ -67,7 +67,7 @@ As a student, I want my level progression and status records to be persisted und
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST structure the learning path into 3 independent channels: Aritmética, Álgebra, and Física.
+- **FR-001**: The system MUST structure the learning path into independent channels: Aritmética, Álgebra, and Física (active), plus Geometría, Trigonometría, Razonamiento Matemático, and Química (visually locked with a "Próximamente" badge and cursor-not-allowed).
 - **FR-002**: The system MUST support level states: "active", "locked", and "dx".
 - **FR-003**: The mobile UI MUST render "dx" levels with 40% opacity, a dashed border, a maintenance icon, and block interaction using an informative Bottom Sheet.
 - **FR-004**: All mathematical formulas MUST be rendered natively as text using KaTeX. Static image equations are strictly forbidden.
@@ -75,12 +75,14 @@ As a student, I want my level progression and status records to be persisted und
   - Fase 1 (Exposición): max 30s, displays formula, provides "Listo" skip button.
   - Fase 2 (Distractor): exactly 8s, high-intensity visual/motor Shell Game (3 cups).
   - Fase 3 (Recuperación): free time, presents real-life analogy, formula is hidden.
-- **FR-006**: Mobile navigation controls and main interactive buttons MUST be placed within the bottom third of the screen.
+- **FR-006**: Mobile navigation controls and main interactive buttons MUST be placed within the bottom third of the screen, and the learning path columns MUST implement a collapsible accordion layout to prevent vertical scrolling fatigue on mobile.
 - **FR-007**: Error states MUST NOT use red colors or punitive text (e.g., "Error", "Incorrecto"). The UI MUST utilize kinetic/neural energy bars and encouraging growth-mindset feedback.
 - **FR-008**: The database MUST store: channels, levels, states, real-life analogies, and user progress logs.
 - **FR-009**: The system MUST implement a Shell Game (3 cups) as the Phase 2 distractor mechanic, requiring high cognitive focus shift.
 - **FR-010**: The active recall validation in Phase 3 MUST be a Multiple Choice mechanic, where the user selects the correct formula or value from 4 options.
 - **FR-011**: The system MUST require user authentication via full email and password signup/login using Supabase Auth.
+- **FR-012**: The system MUST enforce single administrator security roles, where only the official email `enzocostareyes@gmail.com` can access `/admin`. Access must be secured at the database level with RLS.
+- **FR-013**: All media assets uploaded via the Admin panel MUST be optimized client-side and converted to `.webp` format before uploading to the `analogias-imagenes` storage bucket.
 
 ### Key Entities *(include if feature involves data)*
 

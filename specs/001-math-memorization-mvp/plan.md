@@ -20,19 +20,30 @@ We are building a Full-Stack Mathematical Memorization web app under the AntiGra
 
 **Primary Dependencies**: `katex`, `@supabase/supabase-js`, `lucide-react`, `tailwindcss`
 
-**Storage**: PostgreSQL (Supabase) + Supabase Storage (bucket: `analogy-images`)
+**Storage & Media Optimization**:
+- Database: PostgreSQL (Supabase)
+- Storage Bucket Oficial: `analogias-imagenes`
+- Regla de Arquitectura de Media: Toda imagen subida desde el Panel Admin debe ser transformada localmente en el cliente a formato `.webp` (calidad 0.8) antes de su carga, para optimizar el espacio en disco de Supabase Storage y el rendimiento de carga en el cliente móvil.
+
+**Seguridad y Control de Roles**:
+- Administrador único oficial: `enzocostareyes@gmail.com`.
+- El control de acceso está delegado a la base de datos mediante la función `public.es_administrador()` y las tablas de perfiles, garantizando un blindaje estricto por RLS en las tablas `niveles` y `progreso_usuarios` (basado en `auth.uid()`).
+
+**Arquitectura de la UI y Cursos Dinámicos**:
+- La entidad "Cursos" (canales) es dinámica y se almacena en la tabla `public.canales` de la base de datos (con soporte para estados `active` y `dx` para desarrollo/bloqueo).
+- El Panel Administrativo se rige bajo una arquitectura segmentada por pestañas (tabs) que filtra los niveles según el curso seleccionado, garantizando la escalabilidad del MVP.
+- Al crear un nuevo nivel, el formulario preselecciona automáticamente el curso correspondiente a la pestaña activa.
+- La Ruta de Aprendizaje del alumno implementa un diseño de acordeón colapsado por defecto, reduciendo el scroll vertical. Los cursos activos muestran sus niveles, mientras que los cursos marcados como "En Desarrollo" (`dx`) se renderizan al final de la lista, sutilmente opacados, con la etiqueta "Próximamente" y bloqueo de interacción.
 
 **Testing**: N/A (Keep it simple, no unit tests requested in spec)
 
 **Target Platform**: Mobile (PWA) / Desktop (Admin Panel)
 
-**Project Type**: Full-Stack Web Application
-
 **Performance Goals**: Page load under 1.5 seconds, phase transition latency < 100ms
 
 **Constraints**: Bottom-third mobile navigation, zero punitive colors/screens, KaTeX render validation in Admin Panel
 
-**Scale/Scope**: Initial MVP focusing on three learning channels (Aritmética, Álgebra, Física) and a desktop admin panel.
+**Scale/Scope**: MVP ampliado con soporte dinámico para la creación y visualización de cursos ilimitados, segmentados por categorías, y gestionados desde un panel de control jerárquico.
 
 ## Constitution Check
 

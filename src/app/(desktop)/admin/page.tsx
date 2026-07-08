@@ -18,12 +18,33 @@ export default function AdminPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingLevel, setEditingLevel] = useState<Nivel | null>(null);
 
-  // Load levels with analogies joined
-  const loadLevels = async () => {
+  // Dynamic channels/courses states
+  const [channels, setChannels] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<string>('aritmética');
+
+  // New course modal states
+  const [showCourseModal, setShowCourseModal] = useState(false);
+  const [newCourseName, setNewCourseName] = useState('');
+  const [newCourseStatus, setNewCourseStatus] = useState<'active' | 'dx'>('active');
+  const [savingCourse, setSavingCourse] = useState(false);
+  const [courseError, setCourseError] = useState<string | null>(null);
+
+  // Load levels and channels
+  const loadData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: fetchError } = await supabase
+      // 1. Fetch channels
+      const { data: channelsData, error: channelsError } = await supabase
+        .from('canales')
+        .select('*')
+        .order('creado_at', { ascending: true });
+      
+      if (channelsError) throw channelsError;
+      setChannels(channelsData || []);
+
+      // 2. Fetch levels with analogies joined
+      const { data: levelsData, error: fetchError } = await supabase
         .from('niveles')
         .select(`
           *,
@@ -32,17 +53,24 @@ export default function AdminPage() {
         .order('orden_index', { ascending: true });
 
       if (fetchError) throw fetchError;
-      setLevels(data || []);
+      setLevels(levelsData || []);
+
+      // Set activeTab to first channel if not set or not in the retrieved channels list
+      if (channelsData && channelsData.length > 0) {
+        if (!activeTab || !channelsData.some((c: any) => c.slug === activeTab)) {
+          setActiveTab(channelsData[0].slug);
+        }
+      }
     } catch (err: any) {
-      console.error('Error fetching levels:', err);
-      setError(err.message || 'Error cargando niveles de base de datos.');
+      console.error('Error fetching data:', err);
+      setError(err.message || 'Error cargando datos de la base de datos.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadLevels();
+    loadData();
   }, []);
 
   const handleEdit = (level: Nivel) => {
@@ -62,7 +90,7 @@ export default function AdminPage() {
         .eq('id', id);
 
       if (deleteError) throw deleteError;
-      loadLevels();
+      loadData();
     } catch (err: any) {
       alert(`Error eliminando nivel: ${err.message}`);
     }
@@ -71,7 +99,7 @@ export default function AdminPage() {
   const handleFormComplete = () => {
     setShowForm(false);
     setEditingLevel(null);
-    loadLevels();
+    loadData();
   };
 
   const handleFormCancel = () => {
@@ -84,6 +112,42 @@ export default function AdminPage() {
     setShowForm(true);
   };
 
+  const handleCreateCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCourseName.trim()) return;
+
+    setSavingCourse(true);
+    setCourseError(null);
+    try {
+      const slug = newCourseName.trim().toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove accents
+        .replace(/\s+/g, '-') // spaces to hyphens
+        .replace(/[^a-z0-9-]/g, ''); // keep alphanumeric and hyphens
+
+      const { error: insertError } = await supabase
+        .from('canales')
+        .insert({
+          nombre: newCourseName.trim(),
+          slug,
+          estado: newCourseStatus,
+        });
+
+      if (insertError) throw insertError;
+
+      setNewCourseName('');
+      setNewCourseStatus('active');
+      setShowCourseModal(false);
+      await loadData();
+      
+      // Auto select the newly created course tab
+      setActiveTab(slug);
+    } catch (err: any) {
+      setCourseError(err.message || 'Error al guardar el curso');
+    } finally {
+      setSavingCourse(false);
+    }
+  };
+
   const handleSignOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -93,6 +157,8 @@ export default function AdminPage() {
       console.error('Error signing out:', err);
     }
   };
+
+  const filteredLevels = levels.filter((lvl) => lvl.canal === activeTab);
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white pb-20">
@@ -140,6 +206,8 @@ export default function AdminPage() {
               existingLevels={levels}
               onSaveComplete={handleFormComplete}
               onCancel={handleFormCancel}
+              channels={channels}
+              defaultChannel={activeTab}
             />
           </div>
         ) : (
@@ -153,13 +221,23 @@ export default function AdminPage() {
                 </p>
               </div>
 
-              <button
-                onClick={handleCreateNew}
-                className="flex items-center space-x-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer shadow-lg shadow-indigo-950/30"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Agregar Nivel</span>
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setShowCourseModal(true)}
+                  className="flex items-center space-x-2 px-5 py-2.5 bg-neutral-900 border border-neutral-850 hover:bg-neutral-800 transition-all rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer text-neutral-300 hover:text-white"
+                >
+                  <Plus className="h-4 w-4 text-indigo-400" />
+                  <span>Crear Curso</span>
+                </button>
+
+                <button
+                  onClick={handleCreateNew}
+                  className="flex items-center space-x-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer shadow-lg shadow-indigo-950/30"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Agregar Nivel</span>
+                </button>
+              </div>
             </div>
 
             {error && (
@@ -169,6 +247,23 @@ export default function AdminPage() {
               </div>
             )}
 
+            {/* Dynamic Tabs Filter Bar */}
+            <div className="flex border-b border-neutral-900 overflow-x-auto whitespace-nowrap scrollbar-none gap-2">
+              {channels.map((chan) => (
+                <button
+                  key={chan.slug}
+                  onClick={() => setActiveTab(chan.slug)}
+                  className={`px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                    activeTab === chan.slug
+                      ? 'border-indigo-500 text-indigo-400 bg-indigo-950/5'
+                      : 'border-transparent text-neutral-400 hover:text-neutral-200'
+                  }`}
+                >
+                  {chan.nombre}
+                </button>
+              ))}
+            </div>
+
             {loading ? (
               <div className="flex flex-col items-center justify-center py-24 space-y-4 bg-neutral-950/40 border border-neutral-900 rounded-3xl">
                 <RefreshCw className="h-8 w-8 text-indigo-400 animate-spin" />
@@ -176,11 +271,11 @@ export default function AdminPage() {
                   Conectando a Supabase...
                 </p>
               </div>
-            ) : levels.length === 0 ? (
+            ) : filteredLevels.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center bg-neutral-950/40 border border-neutral-900 border-dashed rounded-3xl">
                 <AlertCircle className="h-10 w-10 text-neutral-600 mb-2" />
                 <h3 className="text-neutral-400 font-bold mb-1">Sin Niveles</h3>
-                <p className="text-xs text-neutral-500">No se encontraron niveles en la base de datos.</p>
+                <p className="text-xs text-neutral-500">No se encontraron niveles en este curso.</p>
               </div>
             ) : (
               /* Database Table */
@@ -198,7 +293,7 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-neutral-900">
-                      {levels.map((lvl) => (
+                      {filteredLevels.map((lvl) => (
                         <tr key={lvl.id} className="hover:bg-neutral-900/40 transition-colors">
                           <td className="px-6 py-4 font-mono text-neutral-300">
                             {lvl.orden_index}
@@ -271,6 +366,93 @@ export default function AdminPage() {
           </div>
         )}
       </main>
+
+      {/* Dynamic Create Course Modal */}
+      {showCourseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowCourseModal(false)} />
+          <div className="relative w-full max-w-sm rounded-3xl bg-neutral-900 border border-neutral-800 p-8 shadow-2xl space-y-6 text-white text-left animate-fade-in">
+            <h3 className="text-base font-bold text-neutral-100 uppercase tracking-wider border-b border-neutral-800 pb-3">
+              Crear Nuevo Curso
+            </h3>
+
+            {courseError && (
+              <div className="flex items-center space-x-2 p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl">
+                <AlertCircle className="h-4 w-4" />
+                <span>{courseError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleCreateCourse} className="space-y-4">
+              <div className="flex flex-col space-y-1.5">
+                <label className="text-xs font-semibold text-neutral-400">Nombre del Curso</label>
+                <input
+                  type="text"
+                  required
+                  value={newCourseName}
+                  onChange={(e) => setNewCourseName(e.target.value)}
+                  placeholder="Ej: Geometría"
+                  className="px-4 py-2.5 bg-neutral-950 border border-neutral-850 rounded-xl focus:outline-hidden focus:border-indigo-500 text-sm text-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-2">
+                <label className="text-xs font-semibold text-neutral-400">Estado del Curso</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className={`flex items-center justify-center p-2.5 rounded-xl border cursor-pointer transition text-[10px] font-bold uppercase tracking-wider text-center ${
+                    newCourseStatus === 'active'
+                      ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400'
+                      : 'border-neutral-850 bg-neutral-950 text-neutral-500 hover:text-neutral-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="courseStatus"
+                      value="active"
+                      checked={newCourseStatus === 'active'}
+                      onChange={() => setNewCourseStatus('active')}
+                      className="sr-only"
+                    />
+                    Activo
+                  </label>
+
+                  <label className={`flex items-center justify-center p-2.5 rounded-xl border cursor-pointer transition text-[10px] font-bold uppercase tracking-wider text-center ${
+                    newCourseStatus === 'dx'
+                      ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400'
+                      : 'border-neutral-850 bg-neutral-950 text-neutral-500 hover:text-neutral-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="courseStatus"
+                      value="dx"
+                      checked={newCourseStatus === 'dx'}
+                      onChange={() => setNewCourseStatus('dx')}
+                      className="sr-only"
+                    />
+                    En Desarrollo
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-neutral-800">
+                <button
+                  type="button"
+                  onClick={() => setShowCourseModal(false)}
+                  className="px-5 py-2.5 rounded-xl border border-neutral-800 text-neutral-450 hover:text-white hover:bg-neutral-800 transition text-xs font-semibold cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingCourse}
+                  className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition text-xs font-semibold cursor-pointer disabled:opacity-40"
+                >
+                  {savingCourse ? 'Guardando...' : 'Crear Curso'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

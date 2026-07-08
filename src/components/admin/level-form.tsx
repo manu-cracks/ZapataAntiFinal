@@ -11,6 +11,8 @@ interface LevelFormProps {
   existingLevels: Nivel[];
   onSaveComplete: () => void;
   onCancel: () => void;
+  channels?: any[];
+  defaultChannel?: string;
 }
 
 export default function LevelForm({
@@ -18,10 +20,12 @@ export default function LevelForm({
   existingLevels,
   onSaveComplete,
   onCancel,
+  channels = [],
+  defaultChannel,
 }: LevelFormProps) {
   // 1. Form States
   const [titulo, setTitulo] = useState('');
-  const [canal, setCanal] = useState<CanalTipo>('aritmética');
+  const [canal, setCanal] = useState<string>('');
   const [estado, setEstado] = useState<EstadoNivel>('locked');
   const [formulaLatex, setFormulaLatex] = useState('');
   const [prerrequisitoId, setPrerrequisitoId] = useState<string>('');
@@ -137,7 +141,7 @@ export default function LevelForm({
     } else {
       // defaults
       setTitulo('');
-      setCanal('aritmética');
+      setCanal(defaultChannel || channels[0]?.slug || 'aritmética');
       setEstado('locked');
       setFormulaLatex('');
       setPrerrequisitoId('');
@@ -271,12 +275,14 @@ export default function LevelForm({
               <label className="text-xs font-semibold text-neutral-400">Canal</label>
               <select
                 value={canal}
-                onChange={(e) => setCanal(e.target.value as CanalTipo)}
+                onChange={(e) => setCanal(e.target.value)}
                 className="px-4 py-2 bg-neutral-950 border border-neutral-850 rounded-xl focus:outline-hidden focus:border-indigo-500 text-sm text-white"
               >
-                <option value="aritmética">Aritmética</option>
-                <option value="álgebra">Álgebra</option>
-                <option value="física">Física</option>
+                {channels.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.nombre}
+                  </option>
+                ))}
               </select>
             </div>
 

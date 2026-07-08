@@ -16,6 +16,16 @@ export default function PathPage() {
   const [selectedDxLevel, setSelectedDxLevel] = useState<Nivel | null>(null);
   const [cursoAbierto, setCursoAbierto] = useState<string | null>(null);
 
+  const [channels, setChannels] = useState<any[]>([
+    { nombre: 'Aritmética', slug: 'aritmética', estado: 'active' },
+    { nombre: 'Álgebra', slug: 'álgebra', estado: 'active' },
+    { nombre: 'Física', slug: 'física', estado: 'active' },
+    { nombre: 'Geometría', slug: 'geometría', estado: 'dx' },
+    { nombre: 'Trigonometría', slug: 'trigonometría', estado: 'dx' },
+    { nombre: 'Razonamiento Matemático', slug: 'razonamiento-matematico', estado: 'dx' },
+    { nombre: 'Química', slug: 'química', estado: 'dx' },
+  ]);
+
   // Load user session and fetch levels
   useEffect(() => {
     async function loadData() {
@@ -27,7 +37,17 @@ export default function PathPage() {
       setUser(session?.user || null);
 
       try {
-        // Fetch levels merging progress for this user
+        // 1. Fetch dynamic channels
+        const { data: dbCanales, error: canalesError } = await supabase
+          .from('canales')
+          .select('*')
+          .order('creado_at', { ascending: true });
+
+        if (!canalesError && dbCanales && dbCanales.length > 0) {
+          setChannels(dbCanales);
+        }
+
+        // 2. Fetch levels merging progress for this user
         const url = currentUserId ? `/api/levels?userId=${currentUserId}` : '/api/levels';
         const res = await fetch(url);
         const data = await res.json();
@@ -36,7 +56,7 @@ export default function PathPage() {
           setLevels(data.levels);
         }
       } catch (err) {
-        console.error('Error loading levels:', err);
+        console.error('Error loading data:', err);
       } finally {
         setLoading(false);
       }
@@ -64,20 +84,21 @@ export default function PathPage() {
     }
   };
 
-  // Group levels by channel
-  const aritmeticaLevels = levels.filter((l) => l.canal === 'aritmética');
-  const algebraLevels = levels.filter((l) => l.canal === 'álgebra');
-  const fisicaLevels = levels.filter((l) => l.canal === 'física');
+  const getThemeColor = (index: number) => {
+    const colors = ['indigo', 'emerald', 'sky', 'amber'] as const;
+    return colors[index % colors.length];
+  };
 
-  const cursos = [
-    { nombre: 'Aritmética', key: 'aritmética', themeColor: 'indigo' as const, levels: aritmeticaLevels, bloqueado: false },
-    { nombre: 'Álgebra', key: 'álgebra', themeColor: 'emerald' as const, levels: algebraLevels, bloqueado: false },
-    { nombre: 'Física', key: 'física', themeColor: 'sky' as const, levels: fisicaLevels, bloqueado: false },
-    { nombre: 'Geometría', key: 'geometría', themeColor: 'amber' as const, levels: [], bloqueado: true },
-    { nombre: 'Trigonometría', key: 'trigonometría', themeColor: 'indigo' as const, levels: [], bloqueado: true },
-    { nombre: 'Razonamiento Matemático', key: 'razonamiento-matematico', themeColor: 'emerald' as const, levels: [], bloqueado: true },
-    { nombre: 'Química', key: 'química', themeColor: 'sky' as const, levels: [], bloqueado: true },
-  ];
+  const cursos = channels.map((c, idx) => {
+    const channelLevels = levels.filter((l) => l.canal === c.slug);
+    return {
+      nombre: c.nombre,
+      key: c.slug,
+      themeColor: getThemeColor(idx),
+      levels: channelLevels,
+      bloqueado: c.estado === 'dx',
+    };
+  });
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white pb-16 w-full max-w-full overflow-x-hidden">
