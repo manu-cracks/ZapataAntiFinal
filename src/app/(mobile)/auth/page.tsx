@@ -14,6 +14,7 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +92,20 @@ export default function AuthPage() {
           <>
             {/* Logo and title */}
             <div className="text-center space-y-2">
+              <div className="mb-6 flex justify-center">
+                {!logoError ? (
+                  <img
+                    src="/logo.svg"
+                    alt="AntiGravity Logo"
+                    onError={() => setLogoError(true)}
+                    className="h-16 w-auto mx-auto object-contain"
+                  />
+                ) : (
+                  <span className="text-3xl bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent font-bold">
+                    AntiGravity
+                  </span>
+                )}
+              </div>
               <span className="text-sm font-bold tracking-widest text-indigo-400 uppercase flex items-center justify-center space-x-1.5">
                 <Sparkles className="h-4 w-4 animate-pulse" />
                 <span>AntiGravity Learn</span>

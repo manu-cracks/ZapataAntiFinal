@@ -21,6 +21,7 @@ export default function PathPage() {
   const [inputNick, setInputNick] = useState('');
   const [savingNick, setSavingNick] = useState(false);
   const [nickSavedSuccess, setNickSavedSuccess] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   const [channels, setChannels] = useState<any[]>([
     { nombre: 'Aritmética', slug: 'aritmética', estado: 'active' },
@@ -181,9 +182,18 @@ export default function PathPage() {
       {/* Top Header / Profile Bar */}
       <header className="relative z-30 max-w-5xl mx-auto flex items-center justify-between p-4 w-full border-b border-neutral-900">
         <div className="flex items-center space-x-2">
-          <span className="text-xl font-black tracking-tighter bg-linear-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200 cursor-pointer">
-            ANTIGRAVITY
-          </span>
+          {!logoError ? (
+            <img
+              src="/logo.svg"
+              alt="AntiGravity Logo"
+              onError={() => setLogoError(true)}
+              className="h-8 w-auto object-contain cursor-pointer hover:scale-105 transition-transform duration-200"
+            />
+          ) : (
+            <span className="text-xl font-black tracking-tighter bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200 cursor-pointer">
+              AntiGravity
+            </span>
+          )}
           <span className="text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 bg-neutral-950 border border-neutral-850 rounded-md text-neutral-500">
             MVP
           </span>
