@@ -39,7 +39,7 @@ export default function AdminPage() {
         .from('canales')
         .select('*')
         .order('creado_at', { ascending: true });
-      
+
       if (channelsError) throw channelsError;
       setChannels(channelsData || []);
 
@@ -138,7 +138,7 @@ export default function AdminPage() {
       setNewCourseStatus('active');
       setShowCourseModal(false);
       await loadData();
-      
+
       // Auto select the newly created course tab
       setActiveTab(slug);
     } catch (err: any) {
@@ -221,10 +221,7 @@ export default function AdminPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-neutral-100">Niveles Registrados</h2>
-                <p className="text-xs text-neutral-500">
-                  Visualiza, edita y agrega nuevos módulos de estudio en la base de datos de Supabase.
-                </p>
+
               </div>
 
               <div className="flex items-center space-x-3">
@@ -259,11 +256,10 @@ export default function AdminPage() {
                 <button
                   key={chan.slug}
                   onClick={() => setActiveTab(chan.slug)}
-                  className={`px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
-                    activeTab === chan.slug
+                  className={`px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${activeTab === chan.slug
                       ? 'border-indigo-500 text-indigo-400 bg-indigo-950/5'
                       : 'border-transparent text-neutral-400 hover:text-neutral-200'
-                  }`}
+                    }`}
                 >
                   {chan.nombre}
                 </button>
@@ -323,13 +319,12 @@ export default function AdminPage() {
                           </td>
                           <td className="px-6 py-4">
                             <span
-                              className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                lvl.estado === 'active'
+                              className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${lvl.estado === 'active'
                                   ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
                                   : lvl.estado === 'dx'
-                                  ? 'bg-yellow-500/10 border border-yellow-500/20 text-yellow-400'
-                                  : 'bg-neutral-800 border border-neutral-700 text-neutral-400'
-                              }`}
+                                    ? 'bg-yellow-500/10 border border-yellow-500/20 text-yellow-400'
+                                    : 'bg-neutral-800 border border-neutral-700 text-neutral-400'
+                                }`}
                             >
                               {lvl.estado === 'active' ? 'Activo' : lvl.estado === 'dx' ? 'Desarrollo' : 'Bloqueado'}
                             </span>
@@ -405,11 +400,10 @@ export default function AdminPage() {
               <div className="flex flex-col space-y-2">
                 <label className="text-xs font-semibold text-neutral-400">Estado del Curso</label>
                 <div className="grid grid-cols-2 gap-3">
-                  <label className={`flex items-center justify-center p-2.5 rounded-xl border cursor-pointer transition text-[10px] font-bold uppercase tracking-wider text-center ${
-                    newCourseStatus === 'active'
+                  <label className={`flex items-center justify-center p-2.5 rounded-xl border cursor-pointer transition text-[10px] font-bold uppercase tracking-wider text-center ${newCourseStatus === 'active'
                       ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400'
                       : 'border-neutral-850 bg-neutral-950 text-neutral-500 hover:text-neutral-300'
-                  }`}>
+                    }`}>
                     <input
                       type="radio"
                       name="courseStatus"
@@ -421,11 +415,10 @@ export default function AdminPage() {
                     Activo
                   </label>
 
-                  <label className={`flex items-center justify-center p-2.5 rounded-xl border cursor-pointer transition text-[10px] font-bold uppercase tracking-wider text-center ${
-                    newCourseStatus === 'dx'
+                  <label className={`flex items-center justify-center p-2.5 rounded-xl border cursor-pointer transition text-[10px] font-bold uppercase tracking-wider text-center ${newCourseStatus === 'dx'
                       ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400'
                       : 'border-neutral-850 bg-neutral-950 text-neutral-500 hover:text-neutral-300'
-                  }`}>
+                    }`}>
                     <input
                       type="radio"
                       name="courseStatus"
