@@ -33,7 +33,12 @@ export default function AuthPage() {
           password,
         });
         if (error) throw error;
-        router.push('/path');
+        
+        if (data.user?.email === 'enzocostareyes@gmail.com') {
+          router.push('/admin');
+        } else {
+          router.push('/path');
+        }
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Ocurrió un error inesperado');
