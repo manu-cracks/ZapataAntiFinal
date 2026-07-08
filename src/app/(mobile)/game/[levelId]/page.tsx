@@ -55,7 +55,7 @@ export default function GamePage({ params }: GamePageProps) {
 
       if (currentUserId) {
         // Post completion to progress database (or local storage if fallback is needed)
-        await fetch('/api/progress', {
+        const response = await fetch('/api/progress', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -64,6 +64,11 @@ export default function GamePage({ params }: GamePageProps) {
             user_id: currentUserId,
           }),
         });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `HTTP error ${response.status}`);
+        }
       } else {
         // Fallback: anonymous local progress
         const localProg = localStorage.getItem('guest_progress') || '{}';
@@ -72,7 +77,7 @@ export default function GamePage({ params }: GamePageProps) {
         localStorage.setItem('guest_progress', JSON.stringify(progObj));
       }
     } catch (err) {
-      console.error('Error saving progress:', err);
+      console.error('[CLIENT PROGRESS SAVE EXCEPTION]: Detailed error saving progress for level', levelId, ':', err);
     } finally {
       setSavingProgress(false);
     }

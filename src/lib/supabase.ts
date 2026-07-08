@@ -9,9 +9,27 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+const isProd = process.env.NODE_ENV === 'production';
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce',
+    cookieOptions: {
+      name: 'sb-session',
+      domain: isProd ? 'zapata-anti-final.vercel.app' : 'localhost',
+      path: '/',
+      sameSite: 'lax',
+      secure: isProd,
+    },
   },
-});
+  cookieOptions: {
+    name: 'sb-session',
+    domain: isProd ? 'zapata-anti-final.vercel.app' : 'localhost',
+    path: '/',
+    sameSite: 'lax',
+    secure: isProd,
+  },
+} as any);

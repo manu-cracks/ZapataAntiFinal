@@ -107,6 +107,17 @@ src/
 
 **Structure Decision**: Next.js App Router project grouping pages under route groups `(mobile)` and `(desktop)` to segregate the PWA mobile views and desktop admin dashboards.
 
+## Production Environment Configuration
+
+> [!IMPORTANT]
+> **Supabase Auth Configuration for Vercel Deployment**:
+> To ensure sessions and cookies are handled correctly and Row Level Security (RLS) policies using `auth.uid()` work in production:
+> 1. Go manually to the **Supabase Dashboard** -> **Authentication** -> **URL Configuration**.
+> 2. Under **Site URL**, or by adding in **Redirect URLs**, configure the official production deployment URL:
+>    `https://zapata-anti-final.vercel.app/**`
+> 
+> This configuration allows Supabase to securely sign in and redirect users back to the Vercel domain, avoiding origin mismatch errors and token rejections.
+
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**

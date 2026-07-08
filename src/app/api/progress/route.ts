@@ -27,13 +27,17 @@ export async function POST(request: NextRequest) {
       { onConflict: 'usuario_id,nivel_id' }
     );
 
-    if (error) throw error;
+    if (error) {
+      console.error('[SERVER DATABASE UPSERT ERROR]: Upserting progreso_usuarios failed:', error);
+      throw error;
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Progress recorded successfully',
     });
   } catch (error: any) {
+    console.error('[SERVER PROGRESS API EXCEPTION]: Detailed error inserting progress in database:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
