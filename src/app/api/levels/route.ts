@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { Nivel, Analogia } from '@/types';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -8,8 +11,26 @@ export async function GET(request: NextRequest) {
   const userId = searchParams.get('userId');
 
   try {
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.split(' ')[1];
+
+    // Create client, dynamically authenticating it if token is provided to bypass RLS restrictions
+    const clientOptions = token ? {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    } : {};
+
+    const userSupabase = createClient(supabaseUrl, supabaseAnonKey, clientOptions);
+
     // 1. Fetch levels. Filter by channel if provided.
-    let levelsQuery = supabase
+    let levelsQuery = userSupabase
       .from('niveles')
       .select('*')
       .order('orden_index', { ascending: true });
@@ -22,15 +43,15 @@ export async function GET(request: NextRequest) {
     if (levelsError) throw levelsError;
 
     // 2. Fetch analogies
-    const { data: dbAnalogies, error: analogiesError } = await supabase
+    const { data: dbAnalogies, error: analogiesError } = await userSupabase
       .from('analogias')
       .select('*');
     if (analogiesError) throw analogiesError;
 
-    // 3. Fetch user progress if userId is provided
+    // 3. Fetch user progress if userId is provided using the authenticated client
     let userProgressMap = new Map<string, number>();
     if (userId) {
-      const { data: dbProgress, error: progressError } = await supabase
+      const { data: dbProgress, error: progressError } = await userSupabase
         .from('progreso_usuarios')
         .select('nivel_id, puntaje_energia')
         .eq('usuario_id', userId);

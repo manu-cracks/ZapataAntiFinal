@@ -32,10 +32,10 @@ export default function PathPage() {
     async function loadData() {
       setLoading(true);
       
-      // Get current authenticated user if any
-      const { data: { session } } = await supabase.auth.getSession();
-      const currentUserId = session?.user?.id || null;
-      setUser(session?.user || null);
+      // Get current authenticated user if any asynchronously and securely
+      const { data: { user } } = await supabase.auth.getUser();
+      const currentUserId = user?.id || null;
+      setUser(user || null);
 
       try {
         // 1. Fetch dynamic channels
@@ -48,9 +48,16 @@ export default function PathPage() {
           setChannels(dbCanales);
         }
 
-        // 2. Fetch levels merging progress for this user
+        // 2. Fetch levels merging progress for this user passing Bearer token for RLS
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const url = currentUserId ? `/api/levels?userId=${currentUserId}` : '/api/levels';
-        const res = await fetch(url);
+        const res = await fetch(url, { headers });
         const data = await res.json();
         
         if (data.success) {

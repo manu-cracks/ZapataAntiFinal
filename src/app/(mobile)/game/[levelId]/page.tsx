@@ -50,14 +50,21 @@ export default function GamePage({ params }: GamePageProps) {
   const saveProgress = async (finalScore: number) => {
     setSavingProgress(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const currentUserId = session?.user?.id || null;
+      const { data: { user } } = await supabase.auth.getUser();
+      const currentUserId = user?.id || null;
 
       if (currentUserId) {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
         // Post completion to progress database (or local storage if fallback is needed)
         const response = await fetch('/api/progress', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             level_id: levelId,
             energy_score: finalScore,
