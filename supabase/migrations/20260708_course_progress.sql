@@ -21,7 +21,7 @@ BEGIN
             ELSE ((COUNT(p.id) * 100) / COUNT(n.id))::INT
         END AS porcentaje
     FROM public.canales c
-    LEFT JOIN public.niveles n ON n.canal = c.slug
+    LEFT JOIN public.niveles n ON n.canal = c.slug AND n.estado != 'dx'
     LEFT JOIN public.progreso_usuarios p ON p.nivel_id = n.id AND p.usuario_id = user_id_param
     GROUP BY c.id, c.slug, c.nombre, c.creado_at
     ORDER BY c.creado_at ASC;
