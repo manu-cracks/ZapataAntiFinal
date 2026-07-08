@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Star, Award, LogIn, User } from 'lucide-react';
+import { Star, Award, LogIn, User, LogOut } from 'lucide-react';
 import { Nivel } from '@/types';
 import ChannelColumn from '@/components/learning-path/channel-column';
 import BottomSheet from '@/components/ui/bottom-sheet';
@@ -69,7 +69,7 @@ export default function PathPage() {
   const fisicaLevels = levels.filter((l) => l.canal === 'física');
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white pb-16">
+    <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white pb-16 w-full max-w-full overflow-x-hidden">
       {/* Decorative Outer Space Elements */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/20 via-black to-black pointer-events-none" />
       
@@ -79,7 +79,7 @@ export default function PathPage() {
       <div className="absolute bottom-20 left-1/4 w-1 h-1 bg-white rounded-full animate-pulse opacity-20" />
 
       {/* Top Header / Profile Bar */}
-      <header className="relative z-10 max-w-5xl mx-auto px-6 py-6 flex items-center justify-between border-b border-neutral-900">
+      <header className="relative z-10 max-w-5xl mx-auto flex items-center justify-between p-4 w-full border-b border-neutral-900">
         <div className="flex items-center space-x-2">
           <span className="text-xl font-black tracking-tighter bg-linear-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200 cursor-pointer">
             ANTIGRAVITY
@@ -92,18 +92,19 @@ export default function PathPage() {
         {/* Profile Info / Auth Trigger */}
         <div className="flex items-center space-x-4">
           {user ? (
-            <div className="flex items-center space-x-2.5">
-              <div className="flex items-center space-x-2 bg-neutral-950 border border-neutral-800/80 rounded-2xl py-1.5 px-3.5">
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 bg-neutral-950 border border-neutral-800/80 rounded-2xl py-1.5 px-2.5 sm:px-3.5">
                 <User className="h-4 w-4 text-indigo-400" />
-                <span className="text-xs font-medium text-neutral-300 max-w-[120px] truncate">
+                <span className="hidden sm:inline text-xs font-medium text-neutral-300 max-w-[120px] truncate">
                   {user.email}
                 </span>
               </div>
               <button
                 onClick={handleSignOut}
-                className="flex items-center space-x-1.5 py-1.5 px-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-850 hover:border-red-950/40 hover:text-red-400 transition-all rounded-xl text-xs font-semibold text-neutral-400 cursor-pointer"
+                className="flex items-center space-x-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 hover:bg-red-900/20 hover:text-red-400 transition-colors font-semibold cursor-pointer"
               >
-                <span>Cerrar Sesión</span>
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden sm:block">Cerrar Sesión</span>
               </button>
             </div>
           ) : (
