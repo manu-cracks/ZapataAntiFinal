@@ -69,6 +69,16 @@ export default function PathPage() {
   const algebraLevels = levels.filter((l) => l.canal === 'álgebra');
   const fisicaLevels = levels.filter((l) => l.canal === 'física');
 
+  const cursos = [
+    { nombre: 'Aritmética', key: 'aritmética', themeColor: 'indigo' as const, levels: aritmeticaLevels, bloqueado: false },
+    { nombre: 'Álgebra', key: 'álgebra', themeColor: 'emerald' as const, levels: algebraLevels, bloqueado: false },
+    { nombre: 'Física', key: 'física', themeColor: 'sky' as const, levels: fisicaLevels, bloqueado: false },
+    { nombre: 'Geometría', key: 'geometría', themeColor: 'amber' as const, levels: [], bloqueado: true },
+    { nombre: 'Trigonometría', key: 'trigonometría', themeColor: 'indigo' as const, levels: [], bloqueado: true },
+    { nombre: 'Razonamiento Matemático', key: 'razonamiento-matematico', themeColor: 'emerald' as const, levels: [], bloqueado: true },
+    { nombre: 'Química', key: 'química', themeColor: 'sky' as const, levels: [], bloqueado: true },
+  ];
+
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white pb-16 w-full max-w-full overflow-x-hidden">
       {/* Decorative Outer Space Elements */}
@@ -143,35 +153,24 @@ export default function PathPage() {
             </p>
           </div>
         ) : (
-          /* Responsive 3-Column Roadmap */
-          <div className="flex flex-col md:flex-row justify-center items-center md:items-start md:space-x-8 lg:space-x-12 space-y-16 md:space-y-0 px-4 w-full">
-            <ChannelColumn
-              titulo="Aritmética"
-              levels={aritmeticaLevels}
-              onLevelClick={handleLevelClick}
-              onDxClick={handleDxClick}
-              themeColor="indigo"
-              isOpen={cursoAbierto === 'aritmética'}
-              onToggle={() => setCursoAbierto(cursoAbierto === 'aritmética' ? null : 'aritmética')}
-            />
-            <ChannelColumn
-              titulo="Álgebra"
-              levels={algebraLevels}
-              onLevelClick={handleLevelClick}
-              onDxClick={handleDxClick}
-              themeColor="emerald"
-              isOpen={cursoAbierto === 'álgebra'}
-              onToggle={() => setCursoAbierto(cursoAbierto === 'álgebra' ? null : 'álgebra')}
-            />
-            <ChannelColumn
-              titulo="Física"
-              levels={fisicaLevels}
-              onLevelClick={handleLevelClick}
-              onDxClick={handleDxClick}
-              themeColor="sky"
-              isOpen={cursoAbierto === 'física'}
-              onToggle={() => setCursoAbierto(cursoAbierto === 'física' ? null : 'física')}
-            />
+          /* Responsive Multi-Column Grid Roadmap */
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-full px-4 justify-items-center items-start">
+            {cursos.map((curso) => (
+              <ChannelColumn
+                key={curso.key}
+                titulo={curso.nombre}
+                levels={curso.levels}
+                onLevelClick={handleLevelClick}
+                onDxClick={handleDxClick}
+                themeColor={curso.themeColor}
+                isOpen={cursoAbierto === curso.key}
+                onToggle={() => {
+                  if (curso.bloqueado) return;
+                  setCursoAbierto(cursoAbierto === curso.key ? null : curso.key);
+                }}
+                bloqueado={curso.bloqueado}
+              />
+            ))}
           </div>
         )}
       </main>

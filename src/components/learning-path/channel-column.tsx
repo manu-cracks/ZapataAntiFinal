@@ -13,6 +13,7 @@ interface ChannelColumnProps {
   themeColor?: 'indigo' | 'emerald' | 'amber' | 'sky';
   isOpen?: boolean;
   onToggle?: () => void;
+  bloqueado?: boolean;
 }
 
 export default function ChannelColumn({
@@ -23,6 +24,7 @@ export default function ChannelColumn({
   themeColor = 'indigo',
   isOpen = false,
   onToggle,
+  bloqueado = false,
 }: ChannelColumnProps) {
   // Sort levels by orden_index just to be safe
   const sortedLevels = [...levels].sort((a, b) => a.orden_index - b.orden_index);
@@ -46,15 +48,29 @@ export default function ChannelColumn({
     <div className="flex flex-col items-center flex-1 min-w-[160px] max-w-[240px] select-none mx-auto w-full">
       {/* Column Header as Toggle Button */}
       <button
-        onClick={onToggle}
-        className={`w-full py-3 px-4 mb-6 rounded-2xl border flex items-center justify-between font-bold text-sm tracking-wider uppercase transition-all duration-300 active:scale-95 cursor-pointer hover:bg-neutral-900/50 hover:border-neutral-700/55 shadow-md ${themeClasses[themeColor]}`}
+        onClick={bloqueado ? undefined : onToggle}
+        disabled={bloqueado}
+        className={
+          bloqueado
+            ? 'w-full py-3 px-4 mb-6 rounded-2xl border flex items-center justify-between font-bold text-xs tracking-wider uppercase opacity-60 saturate-50 cursor-not-allowed bg-neutral-950 border-neutral-900 text-neutral-500 shadow-inner'
+            : `w-full py-3 px-4 mb-6 rounded-2xl border flex items-center justify-between font-bold text-sm tracking-wider uppercase transition-all duration-300 active:scale-95 cursor-pointer hover:bg-neutral-900/50 hover:border-neutral-700/55 shadow-md ${themeClasses[themeColor]}`
+        }
       >
-        <span>{titulo}</span>
-        <ChevronDown
-          className={`h-4 w-4 transition-transform duration-300 shrink-0 ${
-            isOpen ? 'rotate-180' : 'rotate-0'
-          }`}
-        />
+        <div className="flex items-center space-x-1.5 min-w-0">
+          <span className="truncate">{titulo}</span>
+          {bloqueado && (
+            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-neutral-900 border border-neutral-800 text-amber-500/80 normal-case tracking-normal shrink-0">
+              Próximamente
+            </span>
+          )}
+        </div>
+        {!bloqueado && (
+          <ChevronDown
+            className={`h-4 w-4 transition-transform duration-300 shrink-0 ${
+              isOpen ? 'rotate-180' : 'rotate-0'
+            }`}
+          />
+        )}
       </button>
 
       {/* Vertical Path of Levels */}
