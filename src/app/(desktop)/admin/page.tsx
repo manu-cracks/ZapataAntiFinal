@@ -161,13 +161,13 @@ export default function AdminPage() {
   const filteredLevels = levels.filter((lvl) => lvl.canal === activeTab);
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white pb-20">
+    <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white pb-20 w-full max-w-full overflow-x-hidden">
       {/* Space gradient background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/15 via-black to-black pointer-events-none" />
 
       {/* Top Header */}
       <header className="relative z-10 border-b border-neutral-900 bg-neutral-950/60 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between w-full max-w-full p-4">
           <div className="flex items-center space-x-3">
             <Database className="h-5 w-5 text-indigo-400" />
             <h1 className="text-lg font-black tracking-wider uppercase text-neutral-100">
@@ -178,19 +178,25 @@ export default function AdminPage() {
             </span>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="w-full sm:w-auto flex gap-2 justify-end items-center">
             <button
               onClick={() => router.push('/path')}
-              className="flex items-center space-x-1.5 py-2 px-4 rounded-xl border border-neutral-850 hover:bg-neutral-900 transition text-xs font-semibold text-neutral-400 hover:text-white cursor-pointer"
+              className="flex items-center space-x-1.5 text-xs px-2.5 py-2 sm:text-sm sm:px-4 sm:py-2 rounded-xl border border-neutral-850 hover:bg-neutral-900 transition font-semibold text-neutral-400 hover:text-white cursor-pointer"
             >
               <Home className="h-3.5 w-3.5" />
-              <span>Ver App Móvil</span>
+              <span>
+                <span className="hidden sm:inline">Ver App Móvil</span>
+                <span className="inline sm:hidden">Ver App</span>
+              </span>
             </button>
             <button
               onClick={handleSignOut}
-              className="flex items-center space-x-1.5 py-2 px-4 rounded-xl border border-neutral-850 hover:bg-neutral-900 hover:border-red-950/40 hover:text-red-400 transition text-xs font-semibold text-neutral-400 cursor-pointer"
+              className="flex items-center space-x-1.5 text-xs px-2.5 py-2 sm:text-sm sm:px-4 sm:py-2 rounded-xl border border-neutral-850 hover:bg-neutral-900 hover:border-red-950/40 hover:text-red-400 transition font-semibold text-neutral-400 cursor-pointer"
             >
-              <span>Cerrar Sesión Admin</span>
+              <span>
+                <span className="hidden sm:inline">Cerrar Sesión Admin</span>
+                <span className="inline sm:hidden">Salir</span>
+              </span>
             </button>
           </div>
         </div>
