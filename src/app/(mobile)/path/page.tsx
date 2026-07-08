@@ -175,7 +175,7 @@ export default function PathPage() {
           </div>
         ) : (
           /* Responsive Multi-Column Grid Roadmap */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-full px-4 justify-items-center items-start">
+          <div className="grid grid-cols-2 gap-4 w-full max-w-full justify-center items-start">
             {cursos.map((curso) => (
               <ChannelColumn
                 key={curso.key}

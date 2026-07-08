@@ -33,7 +33,7 @@ We are building a Full-Stack Mathematical Memorization web app under the AntiGra
 - La entidad "Cursos" (canales) es dinámica y se almacena en la tabla `public.canales` de la base de datos (con soporte para estados `active` y `dx` para desarrollo/bloqueo).
 - El Panel Administrativo se rige bajo una arquitectura segmentada por pestañas (tabs) que filtra los niveles según el curso seleccionado, garantizando la escalabilidad del MVP.
 - Al crear un nuevo nivel, el formulario preselecciona automáticamente el curso correspondiente a la pestaña activa.
-- La Ruta de Aprendizaje del alumno implementa un diseño de acordeón colapsado por defecto, reduciendo el scroll vertical. Los cursos activos muestran sus niveles, mientras que los cursos marcados como "En Desarrollo" (`dx`) se renderizan al final de la lista, sutilmente opacados, con la etiqueta "Próximamente" y bloqueo de interacción.
+- La Ruta de Aprendizaje del alumno implementa un diseño de acordeón colapsado por defecto, organizado en una cuadrícula bicolumna responsiva (`grid-cols-2`) para optimizar el espacio visual y la ergonomía táctil en dispositivos móviles, reduciendo significativamente el scroll vertical. Los cursos activos muestran sus niveles, mientras que los cursos marcados como "En Desarrollo" (`dx`) se renderizan al final de la lista, sutilmente opacados, con la etiqueta "Próximamente" y bloqueo de interacción.
 
 **Testing**: N/A (Keep it simple, no unit tests requested in spec)
 

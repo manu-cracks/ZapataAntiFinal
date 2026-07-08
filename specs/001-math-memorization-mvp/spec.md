@@ -75,7 +75,7 @@ As a student, I want my level progression and status records to be persisted und
   - Fase 1 (Exposición): max 30s, displays formula, provides "Listo" skip button.
   - Fase 2 (Distractor): exactly 8s, high-intensity visual/motor Shell Game (3 cups).
   - Fase 3 (Recuperación): free time, presents real-life analogy, formula is hidden.
-- **FR-006**: Mobile navigation controls and main interactive buttons MUST be placed within the bottom third of the screen, and the learning path columns MUST implement a collapsible accordion layout to prevent vertical scrolling fatigue on mobile.
+- **FR-006**: Mobile navigation controls and main interactive buttons MUST be placed within the bottom third of the screen, and the learning path columns MUST implement a collapsible accordion layout organized in a responsive 2-column grid (`grid-cols-2`) to prevent vertical scrolling fatigue and optimize mobile ergonomics.
 - **FR-007**: Error states MUST NOT use red colors or punitive text (e.g., "Error", "Incorrecto"). The UI MUST utilize kinetic/neural energy bars and encouraging growth-mindset feedback.
 - **FR-008**: The database MUST store: channels, levels, states, real-life analogies, and user progress logs.
 - **FR-009**: The system MUST implement a Shell Game (3 cups) as the Phase 2 distractor mechanic, requiring high cognitive focus shift.

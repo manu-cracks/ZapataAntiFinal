@@ -45,18 +45,18 @@ export default function ChannelColumn({
   };
 
   return (
-    <div className="flex flex-col items-center flex-1 min-w-[160px] max-w-[240px] select-none mx-auto w-full">
+    <div className="flex flex-col items-center flex-1 select-none mx-auto w-full">
       {/* Column Header as Toggle Button */}
       <button
         onClick={bloqueado ? undefined : onToggle}
         disabled={bloqueado}
         className={
           bloqueado
-            ? 'w-full py-3 px-4 mb-6 rounded-2xl border flex items-center justify-between font-bold text-xs tracking-wider uppercase opacity-60 saturate-50 cursor-not-allowed bg-neutral-950 border-neutral-900 text-neutral-500 shadow-inner'
+            ? 'w-full py-3 px-4 mb-6 rounded-2xl border flex items-center justify-center font-bold text-xs tracking-wider uppercase opacity-60 saturate-50 cursor-not-allowed bg-neutral-950 border-neutral-900 text-neutral-500 shadow-inner'
             : `w-full py-3 px-4 mb-6 rounded-2xl border flex items-center justify-between font-bold text-sm tracking-wider uppercase transition-all duration-300 active:scale-95 cursor-pointer hover:bg-neutral-900/50 hover:border-neutral-700/55 shadow-md ${themeClasses[themeColor]}`
         }
       >
-        <div className="flex items-center space-x-1.5 min-w-0">
+        <div className="flex items-center justify-center space-x-1.5 min-w-0 w-full">
           <span className="truncate">{titulo}</span>
           {bloqueado && (
             <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-neutral-900 border border-neutral-800 text-amber-500/80 normal-case tracking-normal shrink-0">
