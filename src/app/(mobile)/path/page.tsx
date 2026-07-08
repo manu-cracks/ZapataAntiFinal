@@ -15,6 +15,7 @@ export default function PathPage() {
   const [user, setUser] = useState<any>(null);
   const [selectedDxLevel, setSelectedDxLevel] = useState<Nivel | null>(null);
   const [cursoAbierto, setCursoAbierto] = useState<string | null>(null);
+  const [cursoProgreso, setCursoProgreso] = useState<Record<string, number>>({});
 
   const [channels, setChannels] = useState<any[]>([
     { nombre: 'Aritmética', slug: 'aritmética', estado: 'active' },
@@ -54,6 +55,21 @@ export default function PathPage() {
         
         if (data.success) {
           setLevels(data.levels);
+        }
+
+        // 3. Fetch progress percentages for each course/channel
+        if (currentUserId) {
+          const { data: dbProgreso, error: progresoError } = await supabase
+            .rpc('obtener_progreso_cursos', { user_id_param: currentUserId });
+          if (!progresoError && dbProgreso) {
+            const progressObj: Record<string, number> = {};
+            dbProgreso.forEach((p: any) => {
+              progressObj[p.canal_slug] = p.porcentaje;
+            });
+            setCursoProgreso(progressObj);
+          }
+        } else {
+          setCursoProgreso({});
         }
       } catch (err) {
         console.error('Error loading data:', err);
@@ -97,6 +113,7 @@ export default function PathPage() {
       themeColor: getThemeColor(idx),
       levels: channelLevels,
       bloqueado: c.estado === 'dx',
+      progreso: cursoProgreso[c.slug] || 0,
     };
   });
 
@@ -190,6 +207,7 @@ export default function PathPage() {
                   setCursoAbierto(cursoAbierto === curso.key ? null : curso.key);
                 }}
                 bloqueado={curso.bloqueado}
+                progreso={curso.progreso}
               />
             ))}
           </div>

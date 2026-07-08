@@ -83,6 +83,7 @@ As a student, I want my level progression and status records to be persisted und
 - **FR-011**: The system MUST require user authentication via full email and password signup/login using Supabase Auth.
 - **FR-012**: The system MUST enforce single administrator security roles, where only the official email `enzocostareyes@gmail.com` can access `/admin`. Access must be secured at the database level with RLS.
 - **FR-013**: All media assets uploaded via the Admin panel MUST be optimized client-side and converted to `.webp` format before uploading to the `analogias-imagenes` storage bucket.
+- **FR-014**: The student's course progression percentages MUST be calculated dynamically on-demand using a relational Postgres function (`public.obtener_progreso_cursos`) to count completed levels against total levels per channel, ensuring immediate consistency when new levels are published.
 
 ### Key Entities *(include if feature involves data)*
 

@@ -14,6 +14,7 @@ interface ChannelColumnProps {
   isOpen?: boolean;
   onToggle?: () => void;
   bloqueado?: boolean;
+  progreso?: number;
 }
 
 export default function ChannelColumn({
@@ -25,6 +26,7 @@ export default function ChannelColumn({
   isOpen = false,
   onToggle,
   bloqueado = false,
+  progreso = 0,
 }: ChannelColumnProps) {
   // Sort levels by orden_index just to be safe
   const sortedLevels = [...levels].sort((a, b) => a.orden_index - b.orden_index);
@@ -53,23 +55,42 @@ export default function ChannelColumn({
         className={
           bloqueado
             ? 'w-full py-3 px-4 mb-6 rounded-2xl border flex items-center justify-center font-bold text-xs tracking-wider uppercase opacity-60 saturate-50 cursor-not-allowed bg-neutral-950 border-neutral-900 text-neutral-500 shadow-inner'
-            : `w-full py-3 px-4 mb-6 rounded-2xl border flex items-center justify-between font-bold text-sm tracking-wider uppercase transition-all duration-300 active:scale-95 cursor-pointer hover:bg-neutral-900/50 hover:border-neutral-700/55 shadow-md ${themeClasses[themeColor]}`
+            : `w-full py-3.5 px-4 mb-6 rounded-2xl border flex flex-col items-stretch font-bold text-sm tracking-wider uppercase transition-all duration-300 active:scale-95 cursor-pointer hover:bg-neutral-900/50 hover:border-neutral-700/55 shadow-md ${themeClasses[themeColor]}`
         }
       >
-        <div className="flex items-center justify-center space-x-1.5 min-w-0 w-full">
-          <span className="truncate">{titulo}</span>
-          {bloqueado && (
-            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-neutral-900 border border-neutral-800 text-amber-500/80 normal-case tracking-normal shrink-0">
-              Próximamente
-            </span>
+        {/* Row for Title and Icon */}
+        <div className="flex items-center justify-between w-full min-w-0">
+          <div className="flex items-center space-x-1.5 min-w-0">
+            <span className="truncate">{titulo}</span>
+            {bloqueado && (
+              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-neutral-900 border border-neutral-800 text-amber-500/80 normal-case tracking-normal shrink-0">
+                Próximamente
+              </span>
+            )}
+          </div>
+          {!bloqueado && (
+            <ChevronDown
+              className={`h-4 w-4 transition-transform duration-300 shrink-0 ${
+                isOpen ? 'rotate-180' : 'rotate-0'
+              }`}
+            />
           )}
         </div>
+
+        {/* Row for Progress Bar */}
         {!bloqueado && (
-          <ChevronDown
-            className={`h-4 w-4 transition-transform duration-300 shrink-0 ${
-              isOpen ? 'rotate-180' : 'rotate-0'
-            }`}
-          />
+          <div className="mt-2 w-full text-left normal-case tracking-normal font-medium">
+            <div className="flex items-center justify-between text-[10px] text-neutral-400 mb-1">
+              <span>Progreso</span>
+              <span className="font-bold text-neutral-300">{progreso}%</span>
+            </div>
+            <div className="bg-gray-700 h-2 w-full rounded-full overflow-hidden">
+              <div
+                className="bg-emerald-500 h-full transition-all duration-500"
+                style={{ width: `${progreso}%` }}
+              />
+            </div>
+          </div>
         )}
       </button>
 
