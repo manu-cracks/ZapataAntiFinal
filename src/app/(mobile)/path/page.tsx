@@ -16,6 +16,11 @@ export default function PathPage() {
   const [selectedDxLevel, setSelectedDxLevel] = useState<Nivel | null>(null);
   const [cursoAbierto, setCursoAbierto] = useState<string | null>(null);
   const [cursoProgreso, setCursoProgreso] = useState<Record<string, number>>({});
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [nick, setNick] = useState('');
+  const [inputNick, setInputNick] = useState('');
+  const [savingNick, setSavingNick] = useState(false);
+  const [nickSavedSuccess, setNickSavedSuccess] = useState(false);
 
   const [channels, setChannels] = useState<any[]>([
     { nombre: 'Aritmética', slug: 'aritmética', estado: 'active' },
@@ -36,6 +41,19 @@ export default function PathPage() {
       const { data: { user } } = await supabase.auth.getUser();
       const currentUserId = user?.id || null;
       setUser(user || null);
+
+      if (currentUserId) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('perfiles')
+          .select('nick')
+          .eq('id', currentUserId)
+          .maybeSingle();
+
+        if (!profileError && profileData) {
+          setNick(profileData.nick || '');
+          setInputNick(profileData.nick || '');
+        }
+      }
 
       try {
         // 1. Fetch dynamic channels
@@ -107,6 +125,32 @@ export default function PathPage() {
     }
   };
 
+  const handleSaveNick = async () => {
+    if (!user) return;
+    setSavingNick(true);
+    setNickSavedSuccess(false);
+    try {
+      const { error } = await supabase
+        .from('perfiles')
+        .upsert({ id: user.id, nick: inputNick });
+
+      if (error) throw error;
+
+      setNick(inputNick);
+      setNickSavedSuccess(true);
+      
+      // Hide success message and close dropdown after 1.5 seconds
+      setTimeout(() => {
+        setNickSavedSuccess(false);
+        setShowProfileMenu(false);
+      }, 1500);
+    } catch (err) {
+      console.error('Error saving nickname:', err);
+    } finally {
+      setSavingNick(false);
+    }
+  };
+
   const getThemeColor = (index: number) => {
     const colors = ['indigo', 'emerald', 'sky', 'amber'] as const;
     return colors[index % colors.length];
@@ -146,14 +190,62 @@ export default function PathPage() {
         </div>
 
         {/* Profile Info / Auth Trigger */}
-        <div className="flex items-center space-x-4">
+        <div className="relative flex items-center space-x-4">
           {user ? (
             <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-2 bg-neutral-950 border border-neutral-800/80 rounded-2xl py-1.5 px-2.5 sm:px-3.5">
-                <User className="h-4 w-4 text-indigo-400" />
-                <span className="hidden sm:inline text-xs font-medium text-neutral-300 max-w-[120px] truncate">
-                  {user.email}
-                </span>
+              <div className="relative">
+                <button
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="flex items-center space-x-2 bg-neutral-950 border border-neutral-800/80 hover:border-neutral-700 rounded-2xl py-1.5 px-2.5 sm:px-3.5 cursor-pointer transition-colors"
+                >
+                  <User className="h-4 w-4 text-indigo-400" />
+                  <span className="hidden sm:inline text-xs font-medium text-neutral-300 max-w-[120px] truncate">
+                    {nick ? nick : user.email}
+                  </span>
+                </button>
+
+                {showProfileMenu && (
+                  <div className="absolute right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-xl p-4 shadow-2xl z-50 text-left space-y-4 animate-fade-in">
+                    <div>
+                      <label className="text-[10px] uppercase font-bold tracking-widest text-neutral-500 block mb-1">
+                        Cuenta
+                      </label>
+                      <span className="text-xs text-neutral-450 block truncate font-medium">
+                        {user.email}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col space-y-1.5">
+                      <label className="text-[10px] uppercase font-bold tracking-widest text-neutral-500 block">
+                        Apodo (Nick)
+                      </label>
+                      <input
+                        type="text"
+                        value={inputNick}
+                        onChange={(e) => setInputNick(e.target.value)}
+                        placeholder="Ej: Kepler-452b"
+                        className="w-full px-3 py-2 bg-neutral-950 border border-neutral-850 focus:border-emerald-500 rounded-xl text-xs focus:outline-hidden text-white"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-700">
+                      {nickSavedSuccess ? (
+                        <span className="text-[10px] text-emerald-400 font-bold">
+                          ✓ Guardado
+                        </span>
+                      ) : (
+                        <div />
+                      )}
+                      <button
+                        onClick={handleSaveNick}
+                        disabled={savingNick}
+                        className="py-1.5 px-4 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold text-white tracking-wide cursor-pointer transition-colors"
+                      >
+                        {savingNick ? '...' : 'Guardar'}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
               <button
                 onClick={handleSignOut}
@@ -178,6 +270,11 @@ export default function PathPage() {
       {/* Main Hero Header */}
       <main className="relative z-10 max-w-5xl mx-auto px-6 pt-12">
         <div className="text-center max-w-2xl mx-auto mb-16">
+          {user && (
+            <h2 className="text-lg sm:text-xl font-extrabold text-emerald-400 tracking-tight mb-2">
+              {nick ? `¡Hola, ${nick}!` : `¡Hola, Jugador! (Configura tu nick en el icono de usuario)`}
+            </h2>
+          )}
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 text-neutral-100">
             Ruta de Aprendizaje
           </h1>

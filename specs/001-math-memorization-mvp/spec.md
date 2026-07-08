@@ -84,10 +84,11 @@ As a student, I want my level progression and status records to be persisted und
 - **FR-012**: The system MUST enforce single administrator security roles, where only the official email `enzocostareyes@gmail.com` can access `/admin`. Access must be secured at the database level with RLS.
 - **FR-013**: All media assets uploaded via the Admin panel MUST be optimized client-side and converted to `.webp` format before uploading to the `analogias-imagenes` storage bucket.
 - **FR-014**: The student's course progression percentages MUST be calculated dynamically on-demand using a relational Postgres function (`public.obtener_progreso_cursos`) to count completed levels against total levels per channel, ensuring immediate consistency when new levels are published.
+- **FR-015**: The student's profile MUST support custom nicknames (Nick). The user can configure a custom apodo from an interactive modal/dropdown menu at the profile header, which is persisted to the database and dynamically rendered as a highlighted greeting in the learning path.
 
 ### Key Entities *(include if feature involves data)*
 
-- **User**: Represens the student. Authenticated via Supabase Auth (email/password).
+- **User**: Represents the student. Authenticated via Supabase Auth (email/password). Links to a custom profile record in `public.perfiles` that contains a dynamic `nick` (nickname) text field.
 - **Channel**: Represents a learning track (e.g., Aritmética). Has name and description.
 - **Level**: Represents a unit of study. Belongs to a Channel. Contains a math formula (KaTeX string), state ("active", "locked", "dx"), prerequisite level reference, and order index.
 - **Analogy**: Represents the real-world application of a formula. Contains visual asset reference (stored in storage) and recall question.

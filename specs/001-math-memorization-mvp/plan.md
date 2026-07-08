@@ -35,6 +35,7 @@ We are building a Full-Stack Mathematical Memorization web app under the AntiGra
 - Al crear un nuevo nivel, el formulario preselecciona automáticamente el curso correspondiente a la pestaña activa.
 - La Ruta de Aprendizaje del alumno implementa un diseño de acordeón colapsado por defecto, organizado en una cuadrícula bicolumna responsiva (`grid-cols-2`) para optimizar el espacio visual y la ergonomía táctil en dispositivos móviles, reduciendo significativamente el scroll vertical. Los cursos activos muestran sus niveles, mientras que los cursos marcados como "En Desarrollo" (`dx`) se renderizan al final de la lista, sutilmente opacados, con la etiqueta "Próximamente" y bloqueo de interacción.
 - El progreso de los usuarios en cada curso se calcula en tiempo real bajo demanda mediante la función de base de datos `public.obtener_progreso_cursos(user_id_param UUID)`, dividiendo los niveles completados entre el total de niveles por canal. Esto elimina el almacenamiento estático de porcentajes y garantiza la consistencia del progreso al añadir o remover niveles desde el panel administrativo.
+- La cabecera móvil del alumno cuenta con un menú flotante responsivo interactivo que permite visualizar el correo electrónico autenticado y guardar un apodo ("Nick"). Este apodo se almacena en la tabla `public.perfiles` con protección de RLS y se muestra como un saludo destacado en la parte superior de la Ruta de Aprendizaje ("¡Hola, [Nick]!") para brindar una experiencia de usuario personalizada.
 
 **Testing**: N/A (Keep it simple, no unit tests requested in spec)
 
