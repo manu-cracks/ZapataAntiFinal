@@ -65,7 +65,7 @@ export default function LevelNode({ nivel, onLevelClick, onDxClick }: LevelNodeP
   };
 
   return (
-    <div className="flex flex-col items-center group">
+    <div className="flex flex-col items-center group mx-auto">
       {/* Node Button */}
       <button
         onClick={handleClick}

@@ -143,7 +143,7 @@ export default function PathPage() {
           </div>
         ) : (
           /* Responsive 3-Column Roadmap */
-          <div className="flex flex-col md:flex-row justify-center items-start md:space-x-8 lg:space-x-12 space-y-16 md:space-y-0 px-4">
+          <div className="flex flex-col md:flex-row justify-center items-center md:items-start md:space-x-8 lg:space-x-12 space-y-16 md:space-y-0 px-4 w-full">
             <ChannelColumn
               titulo="Aritmética"
               levels={aritmeticaLevels}

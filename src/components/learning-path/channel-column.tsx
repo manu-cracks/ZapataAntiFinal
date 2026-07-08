@@ -38,7 +38,7 @@ export default function ChannelColumn({
   };
 
   return (
-    <div className="flex flex-col items-center flex-1 min-w-[120px] max-w-[200px] select-none">
+    <div className="flex flex-col items-center flex-1 min-w-[120px] max-w-[200px] select-none mx-auto">
       {/* Column Header */}
       <div className={`w-full py-2.5 px-4 mb-8 rounded-2xl border text-center font-bold text-sm tracking-wider uppercase ${themeClasses[themeColor]}`}>
         {titulo}
