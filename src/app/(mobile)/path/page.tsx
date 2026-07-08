@@ -179,7 +179,7 @@ export default function PathPage() {
       <div className="absolute bottom-20 left-1/4 w-1 h-1 bg-white rounded-full animate-pulse opacity-20" />
 
       {/* Top Header / Profile Bar */}
-      <header className="relative z-10 max-w-5xl mx-auto flex items-center justify-between p-4 w-full border-b border-neutral-900">
+      <header className="relative z-30 max-w-5xl mx-auto flex items-center justify-between p-4 w-full border-b border-neutral-900">
         <div className="flex items-center space-x-2">
           <span className="text-xl font-black tracking-tighter bg-linear-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200 cursor-pointer">
             ANTIGRAVITY
@@ -205,7 +205,7 @@ export default function PathPage() {
                 </button>
 
                 {showProfileMenu && (
-                  <div className="absolute right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-xl p-4 shadow-2xl z-50 text-left space-y-4 animate-fade-in">
+                  <div className="absolute right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-xl p-4 shadow-2xl z-[100] text-left space-y-4 animate-fade-in">
                     <div>
                       <label className="text-[10px] uppercase font-bold tracking-widest text-neutral-500 block mb-1">
                         Cuenta
