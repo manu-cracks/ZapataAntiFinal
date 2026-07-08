@@ -3,12 +3,13 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { LogIn, UserPlus, AlertCircle, Sparkles } from 'lucide-react';
+import { LogIn, UserPlus, AlertCircle, Sparkles, Eye, EyeOff } from 'lucide-react';
 
 export default function AuthPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -127,14 +128,27 @@ export default function AuthPage() {
 
               <div className="flex flex-col space-y-1.5">
                 <label className="text-xs font-semibold text-neutral-400">Contraseña</label>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-neutral-950 border border-neutral-850 focus:border-indigo-500 rounded-xl text-sm focus:outline-hidden text-white"
-                />
+                <div className="relative w-full">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-4 pr-10 py-3 bg-neutral-950 border border-neutral-850 focus:border-indigo-500 rounded-xl text-sm focus:outline-hidden text-white"
+                  />
+                  <button
+                    type="button"
+                    onMouseDown={() => setShowPassword(true)}
+                    onTouchStart={(e) => { e.preventDefault(); setShowPassword(true); }}
+                    onMouseUp={() => setShowPassword(false)}
+                    onMouseLeave={() => setShowPassword(false)}
+                    onTouchEnd={() => setShowPassword(false)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 text-gray-500 hover:text-emerald-400 transition-colors cursor-pointer select-none"
+                  >
+                    {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+                  </button>
+                </div>
               </div>
 
               <button
