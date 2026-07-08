@@ -165,11 +165,37 @@ export default function LevelForm({
     setErrorMsg(null);
     setSuccessMsg(null);
 
+    // Validate fields conditionally before submitting
+    const isDx = estado === 'dx';
+    if (!isDx) {
+      // If NOT in development, all fields are strictly required!
+      if (!formulaLatex.trim()) {
+        setErrorMsg('La fórmula matemática (LaTeX) es obligatoria para niveles activos o bloqueados.');
+        setSaving(false);
+        return;
+      }
+      if (!preguntaTexto.trim()) {
+        setErrorMsg('La pregunta de la analogía es obligatoria para niveles activos o bloqueados.');
+        setSaving(false);
+        return;
+      }
+      if (!respuestaCorrecta.trim()) {
+        setErrorMsg('La respuesta correcta es obligatoria.');
+        setSaving(false);
+        return;
+      }
+      if (!wrong1.trim() || !wrong2.trim() || !wrong3.trim()) {
+        setErrorMsg('Debes ingresar las 3 respuestas incorrectas.');
+        setSaving(false);
+        return;
+      }
+    }
+
     const levelData = {
       titulo,
       canal,
       estado,
-      formula_latex: formulaLatex,
+      formula_latex: formulaLatex.trim() || null,
       prerrequisito_id: prerrequisitoId || null,
       orden_index: Number(ordenIndex),
     };
@@ -197,31 +223,50 @@ export default function LevelForm({
         savedLevelId = newLevel.id;
       }
 
-      // Upsert Analogy
-      const wrongAnswers = [wrong1.trim(), wrong2.trim(), wrong3.trim()];
-      const analogyData = {
-        nivel_id: savedLevelId,
-        ruta_imagen: rutaImagen.trim() || 'default.png',
-        pregunta_texto: preguntaTexto.trim(),
-        respuesta_correcta: respuestaCorrecta.trim(),
-        respuestas_incorrectas: wrongAnswers,
-      };
+      // Upsert Analogy if it has all required fields, or delete it if empty
+      const hasAllAnalogyData =
+        preguntaTexto.trim() &&
+        respuestaCorrecta.trim() &&
+        wrong1.trim() &&
+        wrong2.trim() &&
+        wrong3.trim();
 
-      if (levelToEdit && levelToEdit.analogia) {
-        // Update Analogy
-        const { error: analogyError } = await supabase
-          .from('analogias')
-          .update(analogyData)
-          .eq('nivel_id', levelToEdit.id);
+      if (hasAllAnalogyData) {
+        const wrongAnswers = [wrong1.trim(), wrong2.trim(), wrong3.trim()];
+        const analogyData = {
+          nivel_id: savedLevelId,
+          ruta_imagen: rutaImagen.trim() || null,
+          pregunta_texto: preguntaTexto.trim(),
+          respuesta_correcta: respuestaCorrecta.trim(),
+          respuestas_incorrectas: wrongAnswers,
+        };
 
-        if (analogyError) throw analogyError;
+        if (levelToEdit && levelToEdit.analogia) {
+          // Update Analogy
+          const { error: analogyError } = await supabase
+            .from('analogias')
+            .update(analogyData)
+            .eq('nivel_id', levelToEdit.id);
+
+          if (analogyError) throw analogyError;
+        } else {
+          // Create Analogy
+          const { error: analogyError } = await supabase
+            .from('analogias')
+            .insert(analogyData);
+
+          if (analogyError) throw analogyError;
+        }
       } else {
-        // Create Analogy
-        const { error: analogyError } = await supabase
-          .from('analogias')
-          .insert(analogyData);
-
-        if (analogyError) throw analogyError;
+        // If editing a level and analogy fields are cleared or empty, delete the analogy row
+        if (levelToEdit && levelToEdit.analogia) {
+          const { error: deleteAnalogyError } = await supabase
+            .from('analogias')
+            .delete()
+            .eq('nivel_id', levelToEdit.id);
+          
+          if (deleteAnalogyError) throw deleteAnalogyError;
+        }
       }
 
       setSuccessMsg('Nivel y Analogía guardados con éxito.');
@@ -335,12 +380,12 @@ export default function LevelForm({
         </div>
 
         {/* 3. LaTeX Formula & Real-time preview */}
-        <div className="flex flex-col space-y-1.5">
+        <div className={`flex flex-col space-y-1.5 transition-opacity duration-200 ${estado === 'dx' ? 'opacity-60' : 'opacity-100'}`}>
           <label className="text-xs font-semibold text-neutral-400">
-            Fórmula Matemática (Sintaxis LaTeX)
+            Fórmula Matemática (Sintaxis LaTeX) {estado === 'dx' && <span className="text-neutral-500 font-normal italic">(Opcional en desarrollo)</span>}
           </label>
           <textarea
-            required
+            required={estado !== 'dx'}
             rows={3}
             value={formulaLatex}
             onChange={(e) => setFormulaLatex(e.target.value)}
@@ -355,15 +400,16 @@ export default function LevelForm({
 
         {/* 4. Analogy Configuration */}
         <div className="border-t border-neutral-800 pt-6 space-y-4">
-          <h4 className="text-sm font-bold text-indigo-400 uppercase tracking-wider">
-            Configuración de Analogía (Fase 3)
+          <h4 className="text-sm font-bold text-indigo-400 uppercase tracking-wider flex items-center space-x-2">
+            <span>Configuración de Analogía (Fase 3)</span>
+            {estado === 'dx' && <span className="text-neutral-500 font-normal italic normal-case text-xs">(Opcional en desarrollo)</span>}
           </h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <label className="text-xs font-semibold text-neutral-400">Pregunta de Analogía</label>
+            <div className={`flex flex-col space-y-1.5 transition-opacity duration-200 ${estado === 'dx' ? 'opacity-60' : 'opacity-100'}`}>
+              <label className="text-xs font-semibold text-neutral-400">Pregunta de Analogía {estado === 'dx' && <span className="text-neutral-500 font-normal italic">(Opcional)</span>}</label>
               <textarea
-                required
+                required={estado !== 'dx'}
                 rows={2}
                 value={preguntaTexto}
                 onChange={(e) => setPreguntaTexto(e.target.value)}
@@ -372,8 +418,8 @@ export default function LevelForm({
               />
             </div>
 
-            <div className="flex flex-col space-y-1.5">
-              <label className="text-xs font-semibold text-neutral-400">Imagen de la Analogía</label>
+            <div className={`flex flex-col space-y-1.5 transition-opacity duration-200 ${estado === 'dx' ? 'opacity-60' : 'opacity-100'}`}>
+              <label className="text-xs font-semibold text-neutral-400">Imagen de la Analogía {estado === 'dx' && <span className="text-neutral-500 font-normal italic">(Opcional)</span>}</label>
               <div className="flex items-center space-x-3 mt-1">
                 <input
                   type="file"
@@ -392,11 +438,11 @@ export default function LevelForm({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <label className="text-xs font-semibold text-neutral-400">Respuesta Correcta</label>
+            <div className={`flex flex-col space-y-1.5 transition-opacity duration-200 ${estado === 'dx' ? 'opacity-60' : 'opacity-100'}`}>
+              <label className="text-xs font-semibold text-neutral-400">Respuesta Correcta {estado === 'dx' && <span className="text-neutral-500 font-normal italic">(Opcional)</span>}</label>
               <input
                 type="text"
-                required
+                required={estado !== 'dx'}
                 value={respuestaCorrecta}
                 onChange={(e) => setRespuestaCorrecta(e.target.value)}
                 placeholder="Ej: 5/6"
@@ -404,12 +450,12 @@ export default function LevelForm({
               />
             </div>
 
-            <div className="space-y-3">
-              <label className="text-xs font-semibold text-neutral-400">Respuestas Incorrectas (3)</label>
+            <div className={`space-y-3 transition-opacity duration-200 ${estado === 'dx' ? 'opacity-60' : 'opacity-100'}`}>
+              <label className="text-xs font-semibold text-neutral-400">Respuestas Incorrectas (3) {estado === 'dx' && <span className="text-neutral-500 font-normal italic">(Opcional)</span>}</label>
               <div className="space-y-2">
                 <input
                   type="text"
-                  required
+                  required={estado !== 'dx'}
                   value={wrong1}
                   onChange={(e) => setWrong1(e.target.value)}
                   placeholder="Incorrecta 1"
@@ -417,20 +463,20 @@ export default function LevelForm({
                 />
                 <input
                   type="text"
-                  required
+                  required={estado !== 'dx'}
                   value={wrong2}
                   onChange={(e) => setWrong2(e.target.value)}
                   placeholder="Incorrecta 2"
                   className="w-full px-4 py-2 bg-neutral-950 border border-neutral-850 rounded-xl focus:outline-hidden focus:border-indigo-500 text-sm text-white"
                 />
-                <input
-                  type="text"
-                  required
-                  value={wrong3}
-                  onChange={(e) => setWrong3(e.target.value)}
-                  placeholder="Incorrecta 3"
-                  className="w-full px-4 py-2 bg-neutral-950 border border-neutral-850 rounded-xl focus:outline-hidden focus:border-indigo-500 text-sm text-white"
-                />
+                  <input
+                    type="text"
+                    required={estado !== 'dx'}
+                    value={wrong3}
+                    onChange={(e) => setWrong3(e.target.value)}
+                    placeholder="Incorrecta 3"
+                    className="w-full px-4 py-2 bg-neutral-950 border border-neutral-850 rounded-xl focus:outline-hidden focus:border-indigo-500 text-sm text-white"
+                  />
               </div>
             </div>
           </div>
