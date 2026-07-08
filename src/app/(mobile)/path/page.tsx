@@ -14,6 +14,7 @@ export default function PathPage() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [selectedDxLevel, setSelectedDxLevel] = useState<Nivel | null>(null);
+  const [cursoAbierto, setCursoAbierto] = useState<string | null>(null);
 
   // Load user session and fetch levels
   useEffect(() => {
@@ -150,6 +151,8 @@ export default function PathPage() {
               onLevelClick={handleLevelClick}
               onDxClick={handleDxClick}
               themeColor="indigo"
+              isOpen={cursoAbierto === 'aritmética'}
+              onToggle={() => setCursoAbierto(cursoAbierto === 'aritmética' ? null : 'aritmética')}
             />
             <ChannelColumn
               titulo="Álgebra"
@@ -157,6 +160,8 @@ export default function PathPage() {
               onLevelClick={handleLevelClick}
               onDxClick={handleDxClick}
               themeColor="emerald"
+              isOpen={cursoAbierto === 'álgebra'}
+              onToggle={() => setCursoAbierto(cursoAbierto === 'álgebra' ? null : 'álgebra')}
             />
             <ChannelColumn
               titulo="Física"
@@ -164,6 +169,8 @@ export default function PathPage() {
               onLevelClick={handleLevelClick}
               onDxClick={handleDxClick}
               themeColor="sky"
+              isOpen={cursoAbierto === 'física'}
+              onToggle={() => setCursoAbierto(cursoAbierto === 'física' ? null : 'física')}
             />
           </div>
         )}

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Nivel } from '@/types';
 import LevelNode from './level-node';
+import { ChevronDown } from 'lucide-react';
 
 interface ChannelColumnProps {
   titulo: string;
@@ -10,6 +11,8 @@ interface ChannelColumnProps {
   onLevelClick: (id: string) => void;
   onDxClick: (nivel: Nivel) => void;
   themeColor?: 'indigo' | 'emerald' | 'amber' | 'sky';
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
 export default function ChannelColumn({
@@ -18,6 +21,8 @@ export default function ChannelColumn({
   onLevelClick,
   onDxClick,
   themeColor = 'indigo',
+  isOpen = false,
+  onToggle,
 }: ChannelColumnProps) {
   // Sort levels by orden_index just to be safe
   const sortedLevels = [...levels].sort((a, b) => a.orden_index - b.orden_index);
@@ -38,30 +43,40 @@ export default function ChannelColumn({
   };
 
   return (
-    <div className="flex flex-col items-center flex-1 min-w-[120px] max-w-[200px] select-none mx-auto">
-      {/* Column Header */}
-      <div className={`w-full py-2.5 px-4 mb-8 rounded-2xl border text-center font-bold text-sm tracking-wider uppercase ${themeClasses[themeColor]}`}>
-        {titulo}
-      </div>
+    <div className="flex flex-col items-center flex-1 min-w-[160px] max-w-[240px] select-none mx-auto w-full">
+      {/* Column Header as Toggle Button */}
+      <button
+        onClick={onToggle}
+        className={`w-full py-3 px-4 mb-6 rounded-2xl border flex items-center justify-between font-bold text-sm tracking-wider uppercase transition-all duration-300 active:scale-95 cursor-pointer hover:bg-neutral-900/50 hover:border-neutral-700/55 shadow-md ${themeClasses[themeColor]}`}
+      >
+        <span>{titulo}</span>
+        <ChevronDown
+          className={`h-4 w-4 transition-transform duration-300 shrink-0 ${
+            isOpen ? 'rotate-180' : 'rotate-0'
+          }`}
+        />
+      </button>
 
       {/* Vertical Path of Levels */}
-      <div className="relative flex flex-col items-center space-y-16 w-full py-4">
-        {/* SVG/Div Vertical Connector Line */}
-        {sortedLevels.length > 1 && (
-          <div className={`absolute top-10 bottom-10 w-0.5 bg-linear-to-b ${lineThemeClasses[themeColor]}`} />
-        )}
+      {isOpen && (
+        <div className="relative flex flex-col items-center space-y-16 w-full py-4 transition-all duration-300 animate-fade-in">
+          {/* SVG/Div Vertical Connector Line */}
+          {sortedLevels.length > 1 && (
+            <div className={`absolute top-10 bottom-10 w-0.5 bg-linear-to-b ${lineThemeClasses[themeColor]}`} />
+          )}
 
-        {/* Level Nodes */}
-        {sortedLevels.map((nivel) => (
-          <div key={nivel.id} className="relative z-10">
-            <LevelNode
-              nivel={nivel}
-              onLevelClick={onLevelClick}
-              onDxClick={onDxClick}
-            />
-          </div>
-        ))}
-      </div>
+          {/* Level Nodes */}
+          {sortedLevels.map((nivel) => (
+            <div key={nivel.id} className="relative z-10">
+              <LevelNode
+                nivel={nivel}
+                onLevelClick={onLevelClick}
+                onDxClick={onDxClick}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
