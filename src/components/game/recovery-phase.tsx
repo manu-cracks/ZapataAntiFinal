@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Brain, Heart, ArrowRight } from 'lucide-react';
 import { Analogia } from '@/types';
+import { supabase } from '@/lib/supabase';
 
 interface RecoveryPhaseProps {
   analogy: Analogia;
@@ -20,6 +21,17 @@ export default function RecoveryPhase({
   neuralEnergy,
 }: RecoveryPhaseProps) {
   const { pregunta_texto, respuesta_correcta, respuestas_incorrectas, ruta_imagen } = analogy;
+
+  const [imageError, setImageError] = useState(false);
+
+  const imageUrl = useMemo(() => {
+    if (!ruta_imagen || ruta_imagen === 'default.png') return null;
+    if (ruta_imagen.startsWith('http://') || ruta_imagen.startsWith('https://')) {
+      return ruta_imagen;
+    }
+    const { data } = supabase.storage.from('analogias-imagenes').getPublicUrl(ruta_imagen);
+    return data?.publicUrl || null;
+  }, [ruta_imagen]);
 
   // Shuffle options once and keep the order consistent
   const shuffledOptions = useMemo(() => {
@@ -50,20 +62,29 @@ export default function RecoveryPhase({
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md my-6">
         <div className="w-full rounded-3xl bg-neutral-900/60 border border-neutral-800 p-6 backdrop-blur-md shadow-2xl flex flex-col items-center text-center">
           {/* Analogy Visual representation */}
-          <div className="w-full h-32 mb-5 rounded-2xl bg-neutral-950 border border-neutral-800 flex items-center justify-center relative overflow-hidden">
-            {/* Subtle glow background */}
-            <div className="absolute inset-0 bg-indigo-500/5 filter blur-md" />
-            
-            {/* Image Placeholder representing the dynamic asset */}
-            <div className="relative z-10 flex flex-col items-center space-y-1">
-              <span className="text-neutral-500 text-[10px] tracking-widest uppercase font-bold">
-                Visualización de Analogía
-              </span>
-              <span className="text-xs text-indigo-400 font-mono">
-                {ruta_imagen}
-              </span>
+          {imageUrl && !imageError ? (
+            <img
+              src={imageUrl}
+              alt="Analogía visual"
+              onError={() => setImageError(true)}
+              className="w-full h-auto object-contain max-h-48 rounded-lg mb-4"
+            />
+          ) : (
+            <div className="w-full h-32 mb-5 rounded-2xl bg-neutral-950 border border-neutral-800 flex items-center justify-center relative overflow-hidden">
+              {/* Subtle glow background */}
+              <div className="absolute inset-0 bg-indigo-500/5 filter blur-md" />
+              
+              {/* Image Placeholder representing the dynamic asset */}
+              <div className="relative z-10 flex flex-col items-center space-y-1">
+                <span className="text-neutral-500 text-[10px] tracking-widest uppercase font-bold">
+                  Visualización de Analogía
+                </span>
+                <span className="text-xs text-indigo-400 font-mono">
+                  {ruta_imagen || 'Sin imagen'}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Question Text */}
           <p className="text-sm sm:text-base text-neutral-200 font-light leading-relaxed mb-2 px-2">

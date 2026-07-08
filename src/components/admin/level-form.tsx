@@ -42,6 +42,45 @@ export default function LevelForm({
   const [saving, setSaving] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
 
+  const convertToWebP = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('No se pudo obtener el contexto del canvas 2D'));
+            return;
+          }
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error('Conversión a WebP fallida'));
+              }
+            },
+            'image/webp',
+            0.8
+          );
+        };
+        img.onerror = () => {
+          reject(new Error('Error al cargar la imagen'));
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.onerror = () => {
+        reject(new Error('Error al leer el archivo'));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -49,12 +88,15 @@ export default function LevelForm({
     setUploadingFile(true);
     setErrorMsg(null);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.floor(Math.random() * 1000)}.${fileExt}`;
+      const webpBlob = await convertToWebP(file);
+      const fileName = `analogia_${Date.now()}.webp`;
       
       const { data, error } = await supabase.storage
         .from('analogias-imagenes')
-        .upload(fileName, file);
+        .upload(fileName, webpBlob, {
+          contentType: 'image/webp',
+          upsert: true,
+        });
 
       if (error) throw error;
       setRutaImagen(fileName);
