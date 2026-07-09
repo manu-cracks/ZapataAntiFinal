@@ -2,11 +2,18 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Star, Award, LogIn, User, LogOut } from 'lucide-react';
+import { Star, Award, LogIn, User, LogOut, Lock } from 'lucide-react';
 import { Nivel } from '@/types';
 import ChannelColumn from '@/components/learning-path/channel-column';
 import BottomSheet from '@/components/ui/bottom-sheet';
 import { supabase } from '@/lib/supabase';
+
+const SKINS = [
+  { id: 1, name: 'Evolución 1', requirement: 0, file: '/level1.svg', fallbackColor: 'bg-indigo-600' },
+  { id: 2, name: 'Evolución 2', requirement: 2, file: '/level2.svg', fallbackColor: 'bg-emerald-600' },
+  { id: 3, name: 'Evolución 3', requirement: 4, file: '/level3.svg', fallbackColor: 'bg-amber-600' },
+  { id: 4, name: 'Evolución 4', requirement: 6, file: '/level4.svg', fallbackColor: 'bg-rose-600' },
+];
 
 export default function PathPage() {
   const router = useRouter();
@@ -22,6 +29,8 @@ export default function PathPage() {
   const [savingNick, setSavingNick] = useState(false);
   const [nickSavedSuccess, setNickSavedSuccess] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const [totalCompleted, setTotalCompleted] = useState<number>(0);
+  const [svgErrors, setSvgErrors] = useState<Record<string, boolean>>({});
 
   const [channels, setChannels] = useState<any[]>([
     { nombre: 'Aritmética', slug: 'aritmética', estado: 'active' },
@@ -89,13 +98,17 @@ export default function PathPage() {
             .rpc('obtener_progreso_cursos', { user_id_param: currentUserId });
           if (!progresoError && dbProgreso) {
             const progressObj: Record<string, number> = {};
+            let total = 0;
             dbProgreso.forEach((p: any) => {
               progressObj[p.canal_slug] = p.porcentaje;
+              total += Number(p.completados || 0);
             });
             setCursoProgreso(progressObj);
+            setTotalCompleted(total);
           }
         } else {
           setCursoProgreso({});
+          setTotalCompleted(0);
         }
       } catch (err) {
         console.error('Error loading data:', err);
@@ -168,6 +181,14 @@ export default function PathPage() {
       progreso: cursoProgreso[c.slug] || 0,
     };
   });
+
+  const getActiveSkin = () => {
+    if (totalCompleted < 2) return SKINS[0];
+    if (totalCompleted < 4) return SKINS[1];
+    if (totalCompleted < 6) return SKINS[2];
+    return SKINS[3];
+  };
+  const activeSkin = getActiveSkin();
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white pb-16 w-full max-w-full overflow-x-hidden">
@@ -305,25 +326,113 @@ export default function PathPage() {
             </p>
           </div>
         ) : (
-          /* Responsive Multi-Column Grid Roadmap */
-          <div className="grid grid-cols-2 gap-4 w-full max-w-full justify-center items-start">
-            {cursos.map((curso) => (
-              <ChannelColumn
-                key={curso.key}
-                titulo={curso.nombre}
-                levels={curso.levels}
-                onLevelClick={handleLevelClick}
-                onDxClick={handleDxClick}
-                themeColor={curso.themeColor}
-                isOpen={cursoAbierto === curso.key}
-                onToggle={() => {
-                  if (curso.bloqueado) return;
-                  setCursoAbierto(cursoAbierto === curso.key ? null : curso.key);
-                }}
-                bloqueado={curso.bloqueado}
-                progreso={curso.progreso}
-              />
-            ))}
+          <div className="space-y-10">
+            {/* Gamified Skins System */}
+            {user && (
+              <section className="relative z-10 max-w-md mx-auto text-center animate-fade-in">
+                <div className="bg-neutral-900/60 border border-neutral-800/80 rounded-3xl p-6 backdrop-blur-md space-y-4">
+                  <h3 className="text-xs uppercase tracking-widest font-black text-indigo-400">
+                    Tu Avatar Evolutivo
+                  </h3>
+                  
+                  {/* Active Avatar */}
+                  <div className="relative flex justify-center">
+                    {!svgErrors[activeSkin.file] ? (
+                      <img
+                        src={activeSkin.file}
+                        alt={activeSkin.name}
+                        onError={() => setSvgErrors(prev => ({ ...prev, [activeSkin.file]: true }))}
+                        className="w-28 h-28 mx-auto mb-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse object-contain"
+                      />
+                    ) : (
+                      <div className={`w-28 h-28 mx-auto mb-2 rounded-full ${activeSkin.fallbackColor} flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-indigo-950/40 animate-pulse`}>
+                        Lvl {activeSkin.id}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <h4 className="text-base font-bold text-neutral-200">
+                      {activeSkin.name}
+                    </h4>
+                    <p className="text-xs text-neutral-500">
+                      Progreso: {totalCompleted} {totalCompleted === 1 ? 'subtarea completada' : 'subtareas completadas'}
+                    </p>
+                  </div>
+
+                  {/* Achievement Lineup */}
+                  <div className="flex items-center justify-center space-x-4 pt-2 border-t border-neutral-800/50">
+                    {SKINS.map((skin) => {
+                      const isUnlocked = totalCompleted >= skin.requirement;
+                      const isCurrent = activeSkin.id === skin.id;
+                      
+                      return (
+                        <div key={skin.id} className="relative flex flex-col items-center group">
+                          <div className="relative">
+                            {!svgErrors[skin.file] ? (
+                              <img
+                                src={skin.file}
+                                alt={skin.name}
+                                onError={() => setSvgErrors(prev => ({ ...prev, [skin.file]: true }))}
+                                className={`w-12 h-12 rounded-xl object-contain p-1 border transition-all duration-300 ${
+                                  isCurrent
+                                    ? 'border-emerald-500 scale-110 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]'
+                                    : isUnlocked
+                                    ? 'border-neutral-700 bg-neutral-950/40'
+                                    : 'border-neutral-850 opacity-30 grayscale filter cursor-not-allowed'
+                                }`}
+                              />
+                            ) : (
+                              <div className={`w-12 h-12 rounded-xl ${skin.fallbackColor} flex items-center justify-center text-white text-xs font-bold border transition-all duration-300 ${
+                                isCurrent
+                                  ? 'border-emerald-500 scale-110'
+                                  : isUnlocked
+                                  ? 'border-neutral-700 bg-neutral-950/40'
+                                  : 'border-neutral-850 opacity-30 grayscale filter cursor-not-allowed'
+                              }`}>
+                                L{skin.id}
+                              </div>
+                            )}
+                            
+                            {/* Lock Icon Overlay */}
+                            {!isUnlocked && (
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <Lock className="h-4 w-4 text-neutral-400 stroke-[3]" />
+                              </div>
+                            )}
+                          </div>
+                          
+                          <span className="text-[9px] uppercase tracking-widest text-neutral-500 mt-1.5 font-bold">
+                            {skin.requirement}+
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Responsive Multi-Column Grid Roadmap */}
+            <div className="grid grid-cols-2 gap-4 w-full max-w-full justify-center items-start">
+              {cursos.map((curso) => (
+                <ChannelColumn
+                  key={curso.key}
+                  titulo={curso.nombre}
+                  levels={curso.levels}
+                  onLevelClick={handleLevelClick}
+                  onDxClick={handleDxClick}
+                  themeColor={curso.themeColor}
+                  isOpen={cursoAbierto === curso.key}
+                  onToggle={() => {
+                    if (curso.bloqueado) return;
+                    setCursoAbierto(cursoAbierto === curso.key ? null : curso.key);
+                  }}
+                  bloqueado={curso.bloqueado}
+                  progreso={curso.progreso}
+                />
+              ))}
+            </div>
           </div>
         )}
       </main>
