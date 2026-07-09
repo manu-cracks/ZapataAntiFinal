@@ -52,3 +52,26 @@ npm run test
 
 # Modo de ejecución de reporte de una sola pasada (CI/CD)
 npm run test:run
+```
+
+---
+
+## 📸 Capturas de Pantalla (Flujo de la Aplicación)
+
+A continuación se detalla el flujo visual del alumno dentro del sistema:
+
+### 1. Pantalla de Autenticación (Login / Registro)
+Inicio de sesión con marca de identidad y el botón dinámico de retención de contraseña (hold-to-reveal).
+![1-login](imagenesReadme/1-login.png)
+
+### 2. Panel de Inicio (Ruta de Aprendizaje)
+Mapa de cursos en cuadrícula de dos columnas con avance porcentual interactivo.
+![2-inicio](imagenesReadme/2-inicio.png)
+
+### 3. Avatar Evolutivo (Skins del Estudiante)
+Panel superior con el avatar actual del alumno desbloqueado según su progreso en subtareas.
+![3-avatar](imagenesReadme/3-avatar.png)
+
+### 4. Ejercicio Práctico (Fases de Juego)
+Renderizado KaTeX de la fórmula científica durante la fase de fijación visual.
+![4-ejercicio](imagenesReadme/4-ejercicio.png)
