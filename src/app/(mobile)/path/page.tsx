@@ -46,7 +46,7 @@ export default function PathPage() {
   useEffect(() => {
     async function loadData() {
       setLoading(true);
-      
+
       // Get current authenticated user if any asynchronously and securely
       const { data: { user } } = await supabase.auth.getUser();
       const currentUserId = user?.id || null;
@@ -87,7 +87,7 @@ export default function PathPage() {
         const url = currentUserId ? `/api/levels?userId=${currentUserId}` : '/api/levels';
         const res = await fetch(url, { headers });
         const data = await res.json();
-        
+
         if (data.success) {
           setLevels(data.levels);
         }
@@ -152,7 +152,7 @@ export default function PathPage() {
 
       setNick(inputNick);
       setNickSavedSuccess(true);
-      
+
       // Hide success message and close dropdown after 1.5 seconds
       setTimeout(() => {
         setNickSavedSuccess(false);
@@ -194,7 +194,7 @@ export default function PathPage() {
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500 selection:text-white pb-16 w-full max-w-full overflow-x-hidden">
       {/* Decorative Outer Space Elements */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/20 via-black to-black pointer-events-none" />
-      
+
       {/* Starry background animation effect */}
       <div className="absolute top-10 left-10 w-2 h-2 bg-white rounded-full animate-ping opacity-30" />
       <div className="absolute top-40 right-20 w-1.5 h-1.5 bg-white rounded-full animate-pulse opacity-40" />
@@ -310,7 +310,7 @@ export default function PathPage() {
             Ruta de Aprendizaje
           </h1>
           <p className="text-sm sm:text-base text-neutral-400 font-light leading-relaxed">
-            Supera la gravedad de la memoria a corto plazo. Supera los niveles en los tres canales independientes para que las fórmulas matemáticas floten en tu mente.
+            Supera la gravedad de la memoria a corto plazo. que las fórmulas matemáticas floten en tu mente.
           </p>
         </div>
 
@@ -334,7 +334,7 @@ export default function PathPage() {
                   <h3 className="text-xs uppercase tracking-widest font-black text-indigo-400">
                     Tu Avatar Evolutivo
                   </h3>
-                  
+
                   {/* Active Avatar */}
                   <div className="relative flex justify-center">
                     {!svgErrors[activeSkin.file] ? (
@@ -350,7 +350,7 @@ export default function PathPage() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="space-y-1">
                     <h4 className="text-base font-bold text-neutral-200">
                       {activeSkin.name}
@@ -365,7 +365,7 @@ export default function PathPage() {
                     {SKINS.map((skin) => {
                       const isUnlocked = totalCompleted >= skin.requirement;
                       const isCurrent = activeSkin.id === skin.id;
-                      
+
                       return (
                         <div key={skin.id} className="relative flex flex-col items-center group">
                           <div className="relative">
@@ -374,26 +374,24 @@ export default function PathPage() {
                                 src={skin.file}
                                 alt={skin.name}
                                 onError={() => setSvgErrors(prev => ({ ...prev, [skin.file]: true }))}
-                                className={`w-12 h-12 rounded-xl object-contain p-1 border transition-all duration-300 ${
-                                  isCurrent
+                                className={`w-12 h-12 rounded-xl object-contain p-1 border transition-all duration-300 ${isCurrent
                                     ? 'border-emerald-500 scale-110 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]'
                                     : isUnlocked
-                                    ? 'border-neutral-700 bg-neutral-950/40'
-                                    : 'border-neutral-850 opacity-30 grayscale filter cursor-not-allowed'
-                                }`}
+                                      ? 'border-neutral-700 bg-neutral-950/40'
+                                      : 'border-neutral-850 opacity-30 grayscale filter cursor-not-allowed'
+                                  }`}
                               />
                             ) : (
-                              <div className={`w-12 h-12 rounded-xl ${skin.fallbackColor} flex items-center justify-center text-white text-xs font-bold border transition-all duration-300 ${
-                                isCurrent
+                              <div className={`w-12 h-12 rounded-xl ${skin.fallbackColor} flex items-center justify-center text-white text-xs font-bold border transition-all duration-300 ${isCurrent
                                   ? 'border-emerald-500 scale-110'
                                   : isUnlocked
-                                  ? 'border-neutral-700 bg-neutral-950/40'
-                                  : 'border-neutral-850 opacity-30 grayscale filter cursor-not-allowed'
-                              }`}>
+                                    ? 'border-neutral-700 bg-neutral-950/40'
+                                    : 'border-neutral-850 opacity-30 grayscale filter cursor-not-allowed'
+                                }`}>
                                 L{skin.id}
                               </div>
                             )}
-                            
+
                             {/* Lock Icon Overlay */}
                             {!isUnlocked && (
                               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -401,7 +399,7 @@ export default function PathPage() {
                               </div>
                             )}
                           </div>
-                          
+
                           <span className="text-[9px] uppercase tracking-widest text-neutral-500 mt-1.5 font-bold">
                             {skin.requirement}+
                           </span>
