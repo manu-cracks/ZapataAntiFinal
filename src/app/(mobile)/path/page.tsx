@@ -310,10 +310,9 @@ export default function PathPage() {
             Ruta de Aprendizaje
           </h1>
           <p className="text-sm sm:text-base text-neutral-400 font-light leading-relaxed">
-            Supera la gravedad de la memoria a corto plazo. que las fórmulas matemáticas floten en tu mente.
+            Supera la gravedad de la memoria a corto plazo.
           </p>
         </div>
-
         {loading ? (
           /* Premium Shimmer Loading State */
           <div className="flex flex-col items-center justify-center py-20 space-y-4">
@@ -375,18 +374,18 @@ export default function PathPage() {
                                 alt={skin.name}
                                 onError={() => setSvgErrors(prev => ({ ...prev, [skin.file]: true }))}
                                 className={`w-12 h-12 rounded-xl object-contain p-1 border transition-all duration-300 ${isCurrent
-                                    ? 'border-emerald-500 scale-110 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]'
-                                    : isUnlocked
-                                      ? 'border-neutral-700 bg-neutral-950/40'
-                                      : 'border-neutral-850 opacity-30 grayscale filter cursor-not-allowed'
+                                  ? 'border-emerald-500 scale-110 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]'
+                                  : isUnlocked
+                                    ? 'border-neutral-700 bg-neutral-950/40'
+                                    : 'border-neutral-850 opacity-30 grayscale filter cursor-not-allowed'
                                   }`}
                               />
                             ) : (
                               <div className={`w-12 h-12 rounded-xl ${skin.fallbackColor} flex items-center justify-center text-white text-xs font-bold border transition-all duration-300 ${isCurrent
-                                  ? 'border-emerald-500 scale-110'
-                                  : isUnlocked
-                                    ? 'border-neutral-700 bg-neutral-950/40'
-                                    : 'border-neutral-850 opacity-30 grayscale filter cursor-not-allowed'
+                                ? 'border-emerald-500 scale-110'
+                                : isUnlocked
+                                  ? 'border-neutral-700 bg-neutral-950/40'
+                                  : 'border-neutral-850 opacity-30 grayscale filter cursor-not-allowed'
                                 }`}>
                                 L{skin.id}
                               </div>
